@@ -3,7 +3,7 @@ class Instance:
         list of words for each tweet. """
 
     def __init__(self):
-        self.label = 0
+        self.label = 2  # should be set to 0 or 1 when categorized
         self.fulltweet = ""
         self.wordlist = []
 
