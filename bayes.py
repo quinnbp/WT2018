@@ -12,25 +12,23 @@ class BayesModel:
         stopWords = set()
         try:
             stop_file = open("stopWords.txt", "r")
-
             for line in stop_file:
                 stopWords.add(line.lower().rstrip("\n"))
         except IOError:
             print("Bayes: NonFatal: stopWords file not found")
 
         train_dict = dict()
-        train_dict[0] = []
-        train_dict[1] = []
+        labels = set()
 
-        for inst in train_list:  # sorting instances by label
-            if inst.getLabel() == 0:
-                train_dict[0].append(inst)
-            elif inst.getLabel() == 1:
-                train_dict[1].append(inst)
+        for inst in train_list:  # gathering and defaulting all labels
+            l = inst.getLabel()
+            if l not in labels:
+                labels.add(l)
+                train_dict[l] = [inst]
             else:
-                print("Bayes: NonFatal: Unlabeled Instance")
+                train_dict[l].append(inst)
 
-        for label in train_dict.keys():  # estblish wordcounts for each label (0, 1)
+        for label in train_dict.keys():  # establish wordcounts for each label
             wordcounts = {}
             totalwords = 0
             for instance in train_dict[label]:
