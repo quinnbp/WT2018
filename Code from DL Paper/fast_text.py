@@ -45,12 +45,12 @@ np.random.seed(42)
 
 
 # PINKESH files
-GLOVE_MODEL_FILE="/home/pinkesh/DATASETS/glove-twitter/GENSIM.glove.twitter.27B." + str(EMBEDDING_DIM) + "d.txt"
+GLOVE_MODEL_FILE="~/Downloads/glove.twitter.27B/glove.twitter.27B.200d.txt"
 NO_OF_CLASSES=3
 
 MAX_NB_WORDS = None
 VALIDATION_SPLIT = 0.2
-word2vec_model = gensim.models.Word2Vec.load_word2vec_format(GLOVE_MODEL_FILE)
+word2vec_model = gensim.models.KeyedVectors.load_word2vec_format(GLOVE_MODEL_FILE)
 
 
 # vocab generation
@@ -90,7 +90,7 @@ def select_tweets():
     tweet_return = []
     for tweet in tweets:
         _emb = 0
-        words = Tokenize(tweet['text']).split()
+        words = Tokenize(tweet['text'].encode('ascii', 'ignore').decode('ascii', 'ignore'))
         for w in words:
             if w in word2vec_model:  # Check if embeeding there in GLove model
                 _emb+=1
@@ -152,9 +152,9 @@ def gen_sequence():
 
 
 def Tokenize(tweet):
-    #return MyTokenizer.tokenize(tweet)
+    return MyTokenizer.tokenize(tweet)
     #pdb.set_trace()
-    return tokenizer_g(tweet)
+    #return tokenizer_g(tweet)
 
 
 def shuffle_weights(model):
@@ -265,6 +265,6 @@ if __name__ == "__main__":
     table = model.layers[0].get_weights()[0]
     #check_semantic_sim(table)
     tryWord(table)
-    pdb.set_trace()
+    #pdb.set_trace()
 
 
