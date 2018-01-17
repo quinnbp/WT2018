@@ -152,9 +152,9 @@ def gen_sequence():
 
 
 def Tokenize(tweet):
-    return MyTokenizer.tokenize(tweet)
+    #return MyTokenizer.tokenize(tweet)
     #pdb.set_trace()
-    #return tokenizer_g(tweet)
+    return tokenizer_g(tweet)
 
 
 def shuffle_weights(model):
