@@ -1,5 +1,5 @@
 import math
-
+from readin import prep as run_readin
 
 class BayesModel:
     def __init__(self):
@@ -8,7 +8,7 @@ class BayesModel:
 
         self.cm = {}
 
-    def train(self, train_list):  # @param list of training instances
+    def main(self, fpaths, tperc, seed):
         stopWords = set()
         try:
             stop_file = open("stopWords.txt", "r")
@@ -17,6 +17,10 @@ class BayesModel:
         except IOError:
             print("Bayes: NonFatal: stopWords file not found")
 
+        train_list, test_list, labels = run_readin(fpaths, tperc, seed, stopWords)
+        self.train(train_list)
+
+    def train(self, train_list):  # @param list of training instances
         train_dict = dict()
         labels = set()
 
@@ -33,13 +37,12 @@ class BayesModel:
             totalwords = 0
             for instance in train_dict[label]:
                 tweet = instance.getWordList()
-                for word in tweet:
-                    if word not in stopWords:  #
-                        totalwords += 1
-                        if word in wordcounts.keys():
-                            wordcounts[word] += 1
-                        else:
-                            wordcounts[word] = 1
+                for word in tweet:  # no need to worry about stopwords here, taken care of in instance builder
+                    totalwords += 1
+                    if word in wordcounts.keys():
+                        wordcounts[word] += 1
+                    else:
+                        wordcounts[word] = 1
 
             self.labels_dict[label] = wordcounts
             self.totals_dict[label] = totalwords
@@ -105,3 +108,16 @@ class BayesModel:
         for i in instances:
             self.test(i)
         print(self.assess())
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 4:
+        # not enough args to make tperc or seed
+        raise IndexError("Readin: Fatal: Not enough given arguments.")
+    else:
+        tperc = float(sys.argv[1])
+        seed = int(sys.argv[2])
+        fpaths = sys.argv[3:]
+
+        b = BayesModel()
+        b.main(fpaths, tperc, seed)

@@ -1,13 +1,33 @@
 import random
 import sys
-from instance import Instance
 
-def readin(files, tperc, seed):
+from instance import Instance
+from StemUtil.StemmingUtil import StemmingUtil as St
+
+def prep(fpaths, tperc, seed, stopWords):
+    files = []
+    for path in fpaths:
+        try:
+            f = open(path)
+            files.append(f)
+        except FileNotFoundError:
+            # missing one file
+            print("Readin: Nonfatal: file " + str(path) + " not found.")
+
+    if len(files) == 0:
+        # found no files
+        raise FileNotFoundError("Readin: Fatal: No train/test files found")
+    else:
+        # found at least one file
+        readin(files, tperc, seed, stopWords)
+
+
+def readin(files, tperc, seed, stopWords):
     # Takes a list of file objects and returns train/test lists of instances
     total = []
     labels = []
     for f in files:
-        file_total, file_labels = parsefile(f)
+        file_total, file_labels = parsefile(f, stopWords)
 
         total.extend(file_total)  # add new instances to overall total
         labels.extend(file_labels)  # add new labels to overall labels
@@ -20,7 +40,8 @@ def readin(files, tperc, seed):
 
     return train, test, labels  # should be mixed-label sets
 
-def parsefile(f):
+
+def parsefile(f, stopWords):
     labels = []
     total = []
 
@@ -35,7 +56,18 @@ def parsefile(f):
             labels.append(n.getlabel())
 
         n.fulltweet = lsplit[1]  # cut between CSV cols
-        n.wordlist = lsplit[1].split()  # cut between words
+
+        words = St.parseTokens(n.fulltweet)
+        wordlist = []
+        for w in words:
+            if w not in stopWords:
+                wordlist.append(w)
+
+        n.wordlist = StemmingUtil.createStems(wordlist)
+        # in this line, the instance's wordlist is turned into stems
+        # this means that various words lose plurals/ structural indicators
+        # which helps to *not* distinguish between words that are functionally
+        # the same
 
         total.append(n)
         line = f.readline()
@@ -48,31 +80,6 @@ def shuffler(theset, seed):
     random.seed(seed)
     random.shuffle(theset)
     return theset
-
-if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        # not enough args to make tperc or seed
-        raise IndexError("Readin: Fatal: Not enough given arguments.")
-    else:
-        tperc = float(sys.argv[1])
-        seed = int(sys.argv[2])
-        fpaths = sys.argv[3:]
-
-        files = []
-        for path in fpaths:
-            try:
-                f = open(path)
-                files.append(f)
-            except FileNotFoundError:
-                # missing one file
-                print("Readin: Nonfatal: file " + str(path) + " not found.")
-
-        if len(files) == 0:
-            # found no files
-            raise FileNotFoundError("Readin: Fatal: No train/test files found")
-        else:
-            # found at least one file
-            readin(files, tperc, seed)
 
 
 
