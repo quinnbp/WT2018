@@ -1,0 +1,8 @@
+# authors
+HW5: Predict the Author (Text Classification)
+
+In this assignment, your goal is to write a program capable of competing in a simplified game of Jeopardy!® where the only category asks for the author of a given passage originally written by a famous author.  For your program, you will train and test Naïve Bayes as a text classifier using text downloaded from Project Gutenberg.  In particular, you will download popular, famous books from 10 authors, train Naïve Bayes to learn the writing styles (indicated by word choices) of each author from those texts, then predict which author wrote 50 short passages (taken from different texts than those you used for training).
+
+We will be using texts freely available on Project Gutenberg (https://www.gutenberg.org/wiki/Main_Page).  The passages from the test set are taken from the following books: Sense and Sensibility by Jane Austen, Through the Looking-Glass by Lewis Carroll, A Tale of Two Cities by Charles Dickens, The Return of Sherlock Holmes by Arthur C. Doyle, The Iliad by Homer, Metamorphosis by Franz Kafka, Apology by Plato, War and Peace by Leo Tolstoy, and The Time Machine by H. G. Wells.
+
+The Java helper code makes use of the open source Lucene project (https://lucene.apache.org/, version 6.2.1) by Apache (), which is released under the Apache 2.0 license.  The Python helper code makes use of the open source NLTK project (http://www.nltk.org/, version 3.2.1), which is also released under the Apache 2.0 license.  The Python helper code also makes use of the english.pickle tokenizer by punkt (which is included, but can be alternatively downloaded using NLTK’s downloading function nltk.download(“punkt”)).  All credit to Apache, NLTK, and punkt for their code and libraries. 
