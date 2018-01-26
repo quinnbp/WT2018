@@ -19,7 +19,7 @@ def prep(fpaths, tperc, seed, stopWords):
         raise FileNotFoundError("Readin: Fatal: No train/test files found")
     else:
         # found at least one file
-        readin(files, tperc, seed, stopWords)
+        return readin(files, tperc, seed, stopWords)
 
 
 def readin(files, tperc, seed, stopWords):
