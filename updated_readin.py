@@ -1,4 +1,6 @@
 import random
+import re
+
 from nltk.corpus import stopwords
 from bayes import BayesModel
 from proximity import ProximityModel
@@ -19,6 +21,8 @@ def main(tperc, seed, fpaths):
 
     return bayesResults, proximityResults
 
+    # TODO: call Daniel and Sage's models
+
 
 def splitSets(tperc, seed, instances):
     random.seed(seed)
@@ -35,10 +39,45 @@ def parseFiles(files):
 
 
 def parseSingle(f):
+    instances = []
+
     stopwords = nltk.corpus.stopwords.words("english")
     other_exclusions = ["#ff", "ff", "rt"]
     stopwords.extend(other_exclusions)
-    pass  # TODO: some processing, depends on input set
+    stopwords = set(stopwords)  # set has faster existence test
+
+    # this code written for files formatted like: labeled_data.csv
+
+    line = file.readline()  # strip first line
+    line = file.readline()
+    while line != "":
+        line = line.strip('"').rstrip('\n')
+        split = line.split(",")
+
+        # strip non-words out of tweet, split
+        justWords = re.sub(r'[^a-zA-Z]+', '', split[6]).split()
+
+        # strip stopwords
+        for word in justWords:
+            if word in stopwords:
+                justWords.remove(word)
+
+        # rejoining for fulltweet
+        ft = ""
+        for word in justWords:
+            ft += word + " "
+
+        # build instance
+        i = Instance()
+        i.label = split[5]
+        i.wordlist = justWords
+        i.fulltweet = ft
+
+        print("parseSingle instance check: " + str(instance))
+        instances.append(i)
+        line = f.readline()
+
+    return instances
 
 
 def openFiles(filepaths):  # takes in file paths and attempts to open, fails if zero valid files

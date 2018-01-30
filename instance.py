@@ -7,6 +7,9 @@ class Instance:
         self.fulltweet = ""
         self.wordlist = []
 
+    def __str__(self):
+        return str([self.label, self.fulltweet])
+
     def getFullTweet(self):
         return self.fulltweet
 
