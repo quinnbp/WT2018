@@ -1,26 +1,11 @@
 import math
-from readin import prep as run_readin
 
 class BayesModel:
     def __init__(self):
         self.labels_dict = {}  # k = label, v = dict
         self.totals_dict = {}  # k = label, v = int
 
-        self.cm = {}
-
-    def main(self, fpaths, tperc, seed):
-        stopWords = set()
-        try:
-            stop_file = open("stopWords.txt", "r")
-            for line in stop_file:
-                stopWords.add(line.lower().rstrip("\n"))
-        except IOError:
-            print("Bayes: NonFatal: stopWords file not found")
-
-        train_list, test_list, labels = run_readin(fpaths, tperc, seed, stopWords)
-        self.train(train_list)
-
-    def train(self, train_list):  # @param list of training instances
+    def train(self, train_list):  # @param list of training instances, stop words removed
         train_dict = dict()
         labels = set()
 
@@ -28,16 +13,15 @@ class BayesModel:
             l = inst.getLabel()
             if l not in labels:
                 labels.add(l)
-                train_dict[l] = [inst]
-            else:
-                train_dict[l].append(inst)
+                train_dict[l] = []
+            train_dict[l].append(inst)
 
         for label in train_dict.keys():  # establish wordcounts for each label
             wordcounts = {}
             totalwords = 0
             for instance in train_dict[label]:
                 tweet = instance.getWordList()
-                for word in tweet:  # no need to worry about stopwords here, taken care of in instance builder
+                for word in tweet:
                     totalwords += 1
                     if word in wordcounts.keys():
                         wordcounts[word] += 1
@@ -47,13 +31,14 @@ class BayesModel:
             self.labels_dict[label] = wordcounts
             self.totals_dict[label] = totalwords
 
-    def test(self, instance):
-        true_label = instance.getLabel()
+
+    def testSingle(self, instance):
         words = instance.getWordList()
 
-        prob = dict()  # should only be two labels
-        prob[0] = 0.5
-        prob[1] = 0.5
+        prob = dict()
+        total_labels = len(self.labels_dict.keys())
+        for label in self.labels_dict.keys():
+            prob[label] = 1.0 / total_labels
 
         for label in self.labels_dict.keys():
             lwc = self.labels_dict[label]
@@ -61,63 +46,20 @@ class BayesModel:
                 if word in lwc.keys():
                     prob[label] += math.log((float(lwc[word] + 1)) / self.totals_dict[label])
                 else:
-                    prob[label] += math.log(float(1) / self.totals_dict[label])  # psuedocounts (nonzero)
+                    prob[label] += math.log(1.0 / self.totals_dict[label])  # psuedocounts (nonzero)
 
-        # predicted, actual
-        if prob[0] >= prob[1]:
-            cm_tuple = (0, true_label)
-        else:  # prob[1] > prob[0]
-            cm_tuple = (1, true_label)
+        maxVal = 0
+        currentLabel = ""
+        for label in prob.keys():
+            if prob[label] > maxVal:
+                currentLabel = label
+                maxVal = prob[label]
 
-        if cm_tuple in self.cm.keys():  # add to ongoing confusion matrix
-            self.cm[cm_tuple] += 1
-        else:
-            self.cm[cm_tuple] = 1
+        return currentLabel
 
-    def guess(self, instance):
-        words = instance.getWordList()
-
-        prob = dict()  # should only be two labels
-        prob[0] = 0.5
-        prob[1] = 0.5
-
-        for label in self.labels_dict.keys():
-            lwc = self.labels_dict[label]
-            for word in words:  # this is where the actual Bayesian probability happens
-                if word in lwc.keys():
-                    prob[label] += math.log((float(lwc[word] + 1)) / self.totals_dict[label])
-                else:
-                    prob[label] += math.log(float(1) / self.totals_dict[label])  # psuedocounts (nonzero)
-
-        if prob[0] >= prob[1]:  # return more likely label
-            return 0
-        else:  # prob[1] > prob[0]
-            return 1
-
-    def assess(self):
-        total_runs = 0
-        correct = 0
-        for tup in self.cm.keys():
-            total_runs += self.cm[tup]
-            if tup[0] == tup[1]:
-                correct += self.cm[tup]
-
-        return float(correct) / total_runs
 
     def batchTest(self, instances):
+        orderedGuesses = []
         for i in instances:
-            self.test(i)
-        print(self.assess())
-
-
-if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        # not enough args to make tperc or seed
-        raise IndexError("Readin: Fatal: Not enough given arguments.")
-    else:
-        tperc = float(sys.argv[1])
-        seed = int(sys.argv[2])
-        fpaths = sys.argv[3:]
-
-        b = BayesModel()
-        b.main(fpaths, tperc, seed)
+            orderedGuesses.append(testSingle(i))
+        return orderedGuesses
