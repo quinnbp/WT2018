@@ -1,4 +1,4 @@
-#  Copyright 2016 The TensorFlow Authors. All Rights Reserved.
+#  Copyright 2018 The TensorFlow Authors. All Rights Reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import pandas
 from sklearn import metrics
 import tensorflow as tf
 
-MAX_DOCUMENT_LENGTH = 10 #define actual max
+MAX_DOCUMENT_LENGTH = 140
 EMBEDDING_SIZE = 50
 n_words = 0
 MAX_LABEL = 15
@@ -94,7 +94,7 @@ def main(unused_argv):
   x_test = #use pandas.read_excel 
   y_test = #use pandas.read_excel 
 
-  # Process vocabulary
+  # Process the vocabulary.
   vocab_processor = tf.contrib.learn.preprocessing.VocabularyProcessor(
       MAX_DOCUMENT_LENGTH)
 
@@ -107,11 +107,11 @@ def main(unused_argv):
   n_words = len(vocab_processor.vocabulary_)
   print('Total words: %d' % n_words)
 
-  # Build model
+  # Build the model.
   model_fn = rnn_model
   classifier = tf.estimator.Estimator(model_fn=model_fn)
 
-  # Train.
+  # Train the model.
   train_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={WORDS_FEATURE: x_train},
       y=y_train,
@@ -120,6 +120,9 @@ def main(unused_argv):
       shuffle=True)
   classifier.train(input_fn=train_input_fn, steps=100)
 
+  # Save the model.
+    saved = tf.train.Saver()
+    
   # Predict.
   test_input_fn = tf.estimator.inputs.numpy_input_fn(
       x={WORDS_FEATURE: x_test},
