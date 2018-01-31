@@ -24,13 +24,15 @@ import pandas
 from sklearn import metrics
 import tensorflow as tf
 
-MAX_DOCUMENT_LENGTH = 140
-EMBEDDING_SIZE = 50
-n_words = 0
-MAX_LABEL = 15
-WORDS_FEATURE = 'words'  # Name of the input words feature.
 
 class LSTM:
+  def init():
+    global MAX_DOCUMENT_LENGTH = 140
+    global EMBEDDING_SIZE = 50
+    global n_words = 0
+    global MAX_LABEL = 15
+    global WORDS_FEATURE = 'words'  # Name of the input words feature.
+    
   def estimator_spec_for_softmax_classification(
       self, logits, labels, mode):
     """Returns EstimatorSpec instance for softmax classification."""
@@ -85,7 +87,6 @@ class LSTM:
 
   # @param prepared training instances, labels, testing intances, labels
   def train(train_data, train_labels):  
-    global n_words
     tf.logging.set_verbosity(tf.logging.INFO)
 
     # Define training and testing data
