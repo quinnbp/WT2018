@@ -1,9 +1,12 @@
 """
 Code originally written by Davidson et al. at https://github.com/t-davidson/hate-speech-and-offensive-language
+    Taken from Davidson:
+        - Preprocessing and tokenizing methods
+        - TFIDF Vectorizer, POS Vectorizer, Other features array (Syllables, Character/word count, sentiment analysis)
     Modified by: Daniel Firebanks
-        - Added lexicon score based on ngram frequency
-        - Added random and glove word embeddings
-        - Added hard voting classifier (SGD Classifier, LinearSVM, Percepron)
+        - Added lexicon score based on ngram frequency as a feature
+        - Added random and glove word embeddings as features
+        - Added hard voting classifier (SGD Classifier, LinearSVM, Percepron) instead of Logistic Regresion Classifier 
 ========================================================================================================================
 This file contains code to
 
