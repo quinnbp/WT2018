@@ -63,8 +63,8 @@ class FinalNetwork:
 
         # Iterate epochs times
         for epoch in range(epochs):
-            #_, c = sess.run([train_step, cost], feed_dict={x: inst_values, y: inst_labels})
-            train_step.run(feed_dict={x: inst_values, y: inst_labels})
+            _, c = sess.run(train_step, feed_dict={x: inst_values, y: inst_labels})
+            #train_step.run(feed_dict={x: inst_values, y: inst_labels})
 
         # Print accuracy of model
         print(self.sess.run(accuracy, feed_dict={x: test_values, y_: test_labels}))
