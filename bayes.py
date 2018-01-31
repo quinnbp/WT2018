@@ -11,8 +11,9 @@ import math
 
 class BayesModel:
     def __init__(self):
-        self.labels_dict = {}  # k = label, v = dict
-        self.totals_dict = {}  # k = label, v = int
+        self.labels_dict = dict()  # k = label, v = dict
+        self.totals_dict = dict()  # k = label, v = int
+        self.cm = dict()
 
     def train(self, train_list):  # @param list of training instances, stop words removed
         train_dict = dict()
@@ -39,6 +40,23 @@ class BayesModel:
 
             self.labels_dict[label] = wordcounts
             self.totals_dict[label] = totalwords
+
+
+    def buildConfusionMatrix(self, test_list):
+        guesses = self.batchTest(test_list)
+        actuals = []
+        for inst in test_list:
+            actuals.append(inst.getLabel())
+
+        for idx in range(0, len(guesses)):
+            cm_tuple = (guesses[idx], actuals[idx])
+            if cm_tuple not in self.cm:
+                self.cm[cm_tuple] = 0
+            self.cm[cm_tuple] +=1
+
+
+    def getConfusionMatrix(self):
+        return self.cm
 
 
     def testSingle(self, instance):

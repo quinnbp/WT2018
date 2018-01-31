@@ -4,6 +4,7 @@ import re
 from nltk.corpus import stopwords
 from bayes import BayesModel
 from proximity import ProximityModel
+from VotingClassifier.VotingClassifierObject import VotingModel
 
 def main(tperc, seed, fpaths):
     files = openFiles(fpaths)
@@ -12,16 +13,24 @@ def main(tperc, seed, fpaths):
 
     b = BayesModel()
     p = ProximityModel()
+    v = VotingModel()
 
     b.train(train_set)
     p.train(train_set)
 
     bayesResults = b.batchTest(test_set)
     proximityResults = p.batchTest(test_set)
+    votingResults = v.predict(test_set)
+    # TODO: call Sage's model
 
-    return bayesResults, proximityResults
+    confusionMatrices = [b.getConfusionMatrix(), p.getConfusionMatrix()]  # TODO add Sage's and Daniel's CMs
+    weightResults(confusionMatrices, bayesResults, proximityResults, votingResults)
 
-    # TODO: call Daniel and Sage's models
+    return bayesResults, proximityResults, votingResults
+
+
+def weightResults(confusionMatrices, bayesResults, proximityResults, votingResults):
+    pass  # TODO
 
 
 def splitSets(tperc, seed, instances):
@@ -42,7 +51,7 @@ def parseSingle(f):
     instances = []
 
     stopwords = nltk.corpus.stopwords.words("english")
-    other_exclusions = ["#ff", "ff", "rt"]
+    other_exclusions = ["#ff", "ff"]
     stopwords.extend(other_exclusions)
     stopwords = set(stopwords)  # set has faster existence test
 

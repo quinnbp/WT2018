@@ -13,6 +13,7 @@ import math
 class ProximityModel:
     def __init__(self):
         self.wordmap = dict()
+        self.cm = dict()
 
 
     def train(self, train_list):  # instances must be int-labeled
@@ -25,6 +26,23 @@ class ProximityModel:
                     self.wordmap[word][1] += 1
         for k in self.wordmap:
             self.wordmap[k] = float(self.wordmap[k][0]) / self.wordmap[k][1]
+
+
+    def buildConfusionMatrix(self, test_list):
+        guesses = self.batchTest(test_list)
+        actuals = []
+        for inst in test_list:
+            actuals.append(inst.getLabel())
+
+        for idx in range(0, len(guesses)):
+            cm_tuple = (guesses[idx], actuals[idx])
+            if cm_tuple not in self.cm:
+                self.cm[cm_tuple] = 0
+            self.cm[cm_tuple] +=1
+
+
+    def getConfusionMatrix(self):
+        return self.cm
 
 
     def batchTest(self, test_list):
