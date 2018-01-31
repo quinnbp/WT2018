@@ -1,3 +1,12 @@
+#!/usr/bin/env python
+
+""" proximity.py: Model class file for a similarity/keyword based text-instance comparison
+        module for WT2018 project. """
+
+__author__ = "Quinn Barker-Plummer"
+__email__  = "qbarkerp@oberlin.edu"
+__status__ = "Development"
+
 from readin import prep as run_readin
 import math
 

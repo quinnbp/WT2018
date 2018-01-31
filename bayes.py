@@ -1,3 +1,12 @@
+#!/usr/bin/env python
+
+""" bayes.py: Model class file for a Bayesian learning text-instance comparison module
+        for WT2018 project. """
+
+__author__ = "Quinn Barker-Plummer"
+__email__  = "qbarkerp@oberlin.edu"
+__status__ = "Development"
+
 import math
 
 class BayesModel:

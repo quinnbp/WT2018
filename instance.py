@@ -1,7 +1,13 @@
-class Instance:
-    """ Instance class for WT2018 project. Contains non-binary label and ordered
+#!/usr/bin/env python
+
+""" instance.py: Instance class for WT2018 project. Contains non-binary label and ordered
         list of words for each tweet. """
 
+__author__ = "Quinn Barker-Plummer"
+__email__  = "qbarkerp@oberlin.edu"
+__status__ = "Development"
+
+class Instance:
     def __init__(self):
         self.label = None
         self.fulltweet = ""
