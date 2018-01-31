@@ -26,7 +26,7 @@ def main(tperc, seed, fpaths):
     # TODO: call Sage's model
     # r.train()
 
-    confusionMatrices = [b.getConfusionMatrix(), p.getConfusionMatrix()]  # TODO add Sage's and Daniel's CMs
+    confusionMatrices = [b.getConfusionMatrix(), p.getConfusionMatrix()]  # TODO add Sage's and Daniel's CMs #I'll add tf.confusion_matrix stuff shortly
     weightResults(confusionMatrices, bayesResults, proximityResults, votingResults)
 
     return bayesResults, proximityResults, votingResults
