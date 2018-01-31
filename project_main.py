@@ -4,6 +4,7 @@ import re
 from nltk.corpus import stopwords
 from bayes import BayesModel
 from proximity import ProximityModel
+from lstm import LSTM
 from VotingClassifier.VotingClassifierObject import VotingModel
 
 def main(tperc, seed, fpaths):
@@ -14,6 +15,7 @@ def main(tperc, seed, fpaths):
     b = BayesModel()
     p = ProximityModel()
     v = VotingModel()
+    # r = LSTM();
 
     b.train(train_set)
     p.train(train_set)
@@ -22,6 +24,7 @@ def main(tperc, seed, fpaths):
     proximityResults = p.batchTest(test_set)
     votingResults = v.predict(test_set)
     # TODO: call Sage's model
+    # r.train()
 
     confusionMatrices = [b.getConfusionMatrix(), p.getConfusionMatrix()]  # TODO add Sage's and Daniel's CMs
     weightResults(confusionMatrices, bayesResults, proximityResults, votingResults)
