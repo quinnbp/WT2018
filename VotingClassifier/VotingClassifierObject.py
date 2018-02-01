@@ -50,7 +50,7 @@ from textstat.textstat import *
 
 # Variables for calculating lexicon score ==============================================================================
 
-lexicon = pd.read_csv('ngram_dict.csv')
+lexicon = pd.read_csv('./lexicons/ngram_dict.csv')
 ngrams_list = lexicon.ngrams
 ngrams_probs = lexicon.probs
 ngrams_dict = dict(zip(ngrams_list, ngrams_probs))
