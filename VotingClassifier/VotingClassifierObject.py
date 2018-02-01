@@ -303,7 +303,7 @@ class VotingModel:
     def __init__(self):
 
         # Load model
-        self.model = joblib.load('final_model.pkl')
+        self.model = joblib.load('final_model_full_glove.pkl')
         self.tf_vectorizer= joblib.load('final_tfidf.pkl')
         self.idf_vector = joblib.load('final_idf.pkl')
         self.pos_vectorizer = joblib.load('final_pos.pkl')
