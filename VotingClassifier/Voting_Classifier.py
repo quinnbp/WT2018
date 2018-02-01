@@ -390,8 +390,8 @@ if __name__ == '__main__':
     # Open data ========================================================================================================
 
     # df = pd.read_csv("../classifier/trump_tweets.csv")
-    #df = pd.read_csv("All_Tweets_June2016_Dataset.csv")
-    df = pd.read_csv("labeled_data.csv")
+    #df = pd.read_csv("./Datasets/All_Tweets_June2016_Dataset.csv")
+    df = pd.read_csv("./Datasets/labeled_data.csv")
     tweets = df.tweet
 
     # Build TF-IDF =====================================================================================================
