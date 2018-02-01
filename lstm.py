@@ -24,15 +24,19 @@ import pandas
 from sklearn import metrics
 import tensorflow as tf
 
+MAX_DOCUMENT_LENGTH = 140
+EMBEDDING_SIZE = 50
+n_words = 0
+MAX_LABEL = 15
+WORDS_FEATURE = 'words'  # Name of the input words feature.
+
 
 class LSTM:
+
   def init():
-    global MAX_DOCUMENT_LENGTH = 140
-    global EMBEDDING_SIZE = 50
-    global n_words = 0
-    global MAX_LABEL = 15
-    global WORDS_FEATURE = 'words'  # Name of the input words feature.
-    
+  	self.testing_data_for_cm = dict()
+  	self.testing_labels_for_cm = dict()
+
   def estimator_spec_for_softmax_classification(
       self, logits, labels, mode):
     """Returns EstimatorSpec instance for softmax classification."""
@@ -85,28 +89,34 @@ class LSTM:
     return estimator_spec_for_softmax_classification(
         logits=logits, labels=labels, mode=mode)
 
-  # @param prepared training instances, labels, testing intances, labels
-  def train(train_data, train_labels):  
+  # @param list of training instances
+  def train(train_list):  
     tf.logging.set_verbosity(tf.logging.INFO)
 
-    # Define training and testing data
-    x_train = train_data
-    y_train = train_labels
-    x_test = test_data
-    y_test = test_labels
+    # Get the labels.
+    train_dict = dict()
+    labels = set()
+
+    for inst in train_list: 
+        l = inst.getLabel()
+        if l not in labels:
+            labels.add(l)
+            train_dict[l] = []
+        train_dict[l].append(inst)
+
+    # Define training data
+    x_train = train_dict
+    y_train = labels
 
     # Process the vocabulary.
     vocab_processor = tf.contrib.learn.preprocessing.VocabularyProcessor(
         MAX_DOCUMENT_LENGTH)
 
     x_transform_train = vocab_processor.fit_transform(x_train)
-    x_transform_test = vocab_processor.transform(x_test)
 
     x_train = np.array(list(x_transform_train))
-    x_test = np.array(list(x_transform_test))
 
     n_words = len(vocab_processor.vocabulary_)
-    print('Total words: %d' % n_words)
 
     # Build the model.
     model_fn = rnn_model
@@ -123,21 +133,47 @@ class LSTM:
 
     # Save the model.
     saved = tf.train.Saver()
+
       
-    # Predict.
-    test_input_fn = tf.estimator.inputs.numpy_input_fn(
-        x={WORDS_FEATURE: x_test},
-        y=y_test,
-        num_epochs=1,
-        shuffle=False)
-    predictions = classifier.predict(input_fn=test_input_fn)
-    y_predicted = np.array(list(p['class'] for p in predictions))
-    y_predicted = y_predicted.reshape(np.array(y_test).shape)
+# @param list of testing instances
+def batchTest(test_list):  
+    tf.logging.set_verbosity(tf.logging.INFO)
 
-    # Score with sklearn.
-    score = metrics.accuracy_score(y_test, y_predicted)
-    print('Accuracy (sklearn): {0:f}'.format(score))
+    # Get the labels.
+    test_dict = dict()
+    labels = set()
 
-    # Score with tensorflow.
-    scores = classifier.evaluate(input_fn=test_input_fn)
-    print('Accuracy (tensorflow): {0:f}'.format(scores['accuracy']))
+    for inst in test_list: 
+        l = inst.getLabel()
+        if l not in labels:
+            labels.add(l)
+            train_dict[l] = []
+        test_dict[l].append(inst)
+
+    # Define testing data
+    x_test = test_dict
+    y_test = labels
+
+    self.testing_data_for_cm = x_test
+    self.testing_labels_for_cm = y_test
+
+    # Load trained model.
+    with tf.Session() as sess:
+  		# Restore variables from disk.
+  		saver.restore(sess, "/tmp/model.ckpt")
+
+  	# Predict.
+  	test_input_fn = tf.estimator.inputs.numpy_input_fn(
+      x={WORDS_FEATURE: x_test},
+      y=y_test,
+      num_epochs=1,
+      shuffle=False)
+  	predictions = classifier.predict(input_fn=test_input_fn)
+	y_predicted = np.array(list(p['class'] for p in predictions))
+	y_predicted = y_predicted.reshape(np.array(y_test).shape)
+
+	# Save the model.
+    saved = tf.train.Saver()
+
+def getConfusionMatrix():  
+	return tf.confusion_matrix(labels=self.testing_data_for_cm, predictions=self.testing_labels_for_cm, num_classes=num_classes)
