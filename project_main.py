@@ -16,29 +16,28 @@ def main(tperc, seed, fpaths):
     b = BayesModel()
     p = ProximityModel()
     v = VotingModel()
-    # r = LSTM() TODO
+    r = LSTM() 
 
     # train all models (except voting, loaded)
     b.train(train_set)
     p.train(train_set)
-    # r.train(train_set) TODO
+    r.train(train_set) 
 
     # run models and store first set of results
     b.batchTest(test_set1)
     p.batchTest(test_set1)
     v.predict(test_set1)
-    #r.predict(test_set1) TODO
+    r.predict(test_set1) 
 
     # get confusion matrices for first set of results
-    confusionMatrices = [b.getConfusionMatrix(), p.getConfusionMatrix(), v.getConfusionMatrix()]
-    # TODO add Sage's CM
+    confusionMatrices = [b.getConfusionMatrix(), p.getConfusionMatrix(), v.getConfusionMatrix(), r.getConfusionMatrix()]
 
     # weight second set of results, using first
     weightingInput = [
         [confusionMatrices[0] ,b.batchTest(test_set2)],
         [confusionMatrices[1], p.batchTest(test_set2)],
         [confusionMatrices[2], v.predict(test_set2)],
-        # [confusionMatrices[3], r.predict(test_set2)] TODO
+        [confusionMatrices[3], r.predict(test_set2)] 
     ]
 
     guesses = weightResults(weightingInput)
