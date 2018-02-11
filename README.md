@@ -3,6 +3,7 @@ Winter Term Project 2018
 
 
 Needs:
+
 	nltk
 	
 	numpy
