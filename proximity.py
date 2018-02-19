@@ -7,7 +7,6 @@ __author__ = "Quinn Barker-Plummer"
 __email__  = "qbarkerp@oberlin.edu"
 __status__ = "Development"
 
-from readin import prep as run_readin
 import math
 
 class ProximityModel:
@@ -19,7 +18,7 @@ class ProximityModel:
     def train(self, train_list):  # instances must be int-labeled
         for inst in train_list:
             for word in inst.getWordList():
-                if word not in prep_dict:
+                if word not in self.wordmap:
                     self.wordmap[word] = [inst.getLabel(), 1]
                 else:
                     self.wordmap[word][0] += inst.getLabel()
@@ -41,14 +40,16 @@ class ProximityModel:
             self.cm[cm_tuple] +=1
 
 
-    def getConfusionMatrix(self):
+    def getConfusionMatrix(self, test_list):
+        self.buildConfusionMatrix(test_list)
         return self.cm
 
 
     def batchTest(self, test_list):
         orderedGuesses = []
         for inst in test_list:
-            guess_list.append(self.test(inst))
+            orderedGuesses.append(self.test(inst))
+        print(orderedGuesses)
         return orderedGuesses
 
 
@@ -61,5 +62,5 @@ class ProximityModel:
                 denom += 1
         if denom == 0:
             denom = 1
-        return math.round(float(guess) / denom)
+        return round(float(guess) / denom)
 

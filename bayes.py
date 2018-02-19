@@ -55,7 +55,8 @@ class BayesModel:
             self.cm[cm_tuple] +=1
 
 
-    def getConfusionMatrix(self):
+    def getConfusionMatrix(self, test_list):
+        self.buildConfusionMatrix(test_list)
         return self.cm
 
 
@@ -88,5 +89,5 @@ class BayesModel:
     def batchTest(self, instances):
         orderedGuesses = []
         for i in instances:
-            orderedGuesses.append(testSingle(i))
+            orderedGuesses.append(self.testSingle(i))
         return orderedGuesses
