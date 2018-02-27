@@ -90,7 +90,7 @@ class LSTM:
         logits=logits, labels=labels, mode=mode)
 
   # @param list of training instances
-  def train(train_list):  
+  def train(self, train_list):  
     tf.logging.set_verbosity(tf.logging.INFO)
 
     # Get the labels.
@@ -120,7 +120,7 @@ class LSTM:
     print('Total words: %d' % n_words)
 
     # Build the model.
-    model_fn = rnn_model
+    model_fn = self.rnn_model
     classifier = tf.estimator.Estimator(model_fn=model_fn)
 
     # Train the model.
@@ -130,11 +130,10 @@ class LSTM:
         batch_size=len(x_train),
         num_epochs=None,
         shuffle=True)
-    classifier.train(input_fn=train_input_fn, steps=100)
+    classifier.train(train_input_fn, hooks=None, steps=None, max_steps=None)
 
     # Save the model.
     saved = tf.train.Saver()
-
       
 # @param list of testing instances
   def batchTest(test_list):  
