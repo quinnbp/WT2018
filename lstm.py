@@ -130,7 +130,7 @@ class LSTM:
         batch_size=len(x_train),
         num_epochs=None,
         shuffle=True)
-    classifier.train(train_input_fn, hooks=None, steps=None, max_steps=None)
+    classifier.train(train_input_fn, hooks=None, steps=None, max_steps=None) #fixing this rn
 
     # Save the model.
     saved = tf.train.Saver()
