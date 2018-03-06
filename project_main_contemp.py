@@ -90,8 +90,10 @@ def predictAll(weightingList):
         votes = dict()
         for mpair in weightingList:  # for each model's results
             voteFor = mpair[1][idx]  # what the model guessed
-            votes[voteFor] += mpair[0][voteFor]  # how 'much' of a vote that should be (by accuracy)
-
+            if voteFor in votes.keys():
+                votes[voteFor] += mpair[0][voteFor]  # how 'much' of a vote that should be (by accuracy)
+            else:
+                votes[voteFor] = mpair[0][voteFor]
         maxVal = 0
         vote = None
         for label in votes.keys():  # get max voted
