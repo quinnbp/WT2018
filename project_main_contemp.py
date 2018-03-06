@@ -1,13 +1,13 @@
 import random
 import re
 import sys
-# import nltk
+import nltk
 
-from bayes import BayesModel
-from proximity import ProximityModel
+#from bayes import BayesModel
+#from proximity import ProximityModel
 from instance import Instance
 #from lstm import LSTM
-#from VotingClassifier.VotingClassifierObject import VotingModel
+from VotingClassifier.VotingClassifierObject import VotingModel
 
 def main(tperc, seed, fpaths):
     files = openFiles(fpaths)
@@ -16,20 +16,21 @@ def main(tperc, seed, fpaths):
 
     # initialize all models
 
-    b = BayesModel()
-    p = ProximityModel()
-    # v = VotingModel()
+    #b = BayesModel()
+    #p = ProximityModel()
+    v = VotingModel()
     # r = LSTM()
 
     # train all models (except voting, loaded)
 
-    b.train(train_set)
-    p.train(train_set)
+    #b.train(train_set)
+    #p.train(train_set)
+    v.train(train_set)
     # r.train(train_set)
 
     # run models and store first set of results
 
-    # v.predict(test_set1)
+    v.predict(test_set1)
     # r.predict(test_set1)
 
     # get confusion matrices for first set of results
@@ -37,13 +38,14 @@ def main(tperc, seed, fpaths):
     # confusionMatrices = [b.getConfusionMatrix(), p.getConfusionMatrix(), v.getConfusionMatrix(), r.getConfusionMatrix()]
 
     # patch code
-    confusionMatrices = [b.getConfusionMatrix(test_set1), p.getConfusionMatrix(test_set1)]
+    #confusionMatrices = [b.getConfusionMatrix(test_set1), p.getConfusionMatrix(test_set1)]
+    confusionMatrices = [v.getConfusionMatrix(test_set1)]
 
     # weight second set of results, using first
     weightingInput = [
-        [confusionMatrices[0] ,b.batchTest(test_set2)],
-        [confusionMatrices[1], p.batchTest(test_set2)],
-        # [confusionMatrices[2], v.predict(test_set2)],
+        #[confusionMatrices[0] ,b.batchTest(test_set2)],
+        #[confusionMatrices[1], p.batchTest(test_set2)],
+        [confusionMatrices[0], v.predict(test_set2)],
         # [confusionMatrices[3], r.predict(test_set2)]  # patch comment
     ]
 
@@ -78,7 +80,7 @@ def weightResults(weightingInput):
 
             accuracyFor[pred] = float(correct) / total
 
-        weightingList.append(accuracyFor, output)
+        weightingList.append((accuracyFor, output))
 
     return predictAll(weightingList)
 
@@ -88,7 +90,7 @@ def predictAll(weightingList):
         votes = dict()
         for mpair in weightingList:  # for each model's results
             voteFor = mpair[1][idx]  # what the model guessed
-            votes[voteFor] += mpair[0][votefor]  # how 'much' of a vote that should be (by accuracy)
+            votes[voteFor] += mpair[0][voteFor]  # how 'much' of a vote that should be (by accuracy)
 
         maxVal = 0
         vote = None
@@ -122,18 +124,22 @@ def parseSingle(f):
     instances = []
 
     # stopwords = nltk.corpus.stopwords.words("english")  # TODO
-
-    # patch code
-    stopwordsfile = open('stopWords.txt', 'r')
-    stopwords = []
-    for line in stopwordsfile:
-        stopwords.append(str(line).rstrip('\n'))
-
-    # end patch code
-
-    other_exclusions = ["#ff", "ff"]
+    stopwords = nltk.corpus.stopwords.words("english")
+    other_exclusions = ["#ff", "ff", "rt"]
     stopwords.extend(other_exclusions)
-    stopwords = set(stopwords)  # set has faster existence test
+    stopwords = set(stopwords)
+
+    # # patch code
+    # stopwordsfile = open('stopWords.txt', 'r')
+    # stopwords = []
+    # for line in stopwordsfile:
+    #     stopwords.append(str(line).rstrip('\n'))
+    #
+    # # end patch code
+    #
+    # other_exclusions = ["#ff", "ff"]
+    # stopwords.extend(other_exclusions)
+    # stopwords = set(stopwords)  # set has faster existence test
 
     # this code written for files formatted like: labeled_data.csv
 
@@ -167,7 +173,7 @@ def parseSingle(f):
             i.fulltweet = ft
 
             # test code
-            print("parseSingle instance parsed: " + str(i))
+            # print("parseSingle instance parsed: " + str(i))
 
             instances.append(i)
         except IndexError:
@@ -188,7 +194,7 @@ def openFiles(filepaths):  # takes in file paths and attempts to open, fails if 
             f = open(fp, 'r')
             files.append(f)
         except FileNotFoundError:
-            print("Readin: NonFatal: file " + str(fpath) + " not found.")
+            print("Readin: NonFatal: file " + str(fp) + " not found.")
 
     if len(files) == 0:
         raise FileNotFoundError("Readin: Fatal: No Files Found")

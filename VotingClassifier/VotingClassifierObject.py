@@ -22,6 +22,7 @@ This file contains code to
 """
 
 import pickle
+
 import numpy as np
 import gensim
 import pandas as pd
@@ -303,13 +304,16 @@ class VotingModel:
     def __init__(self):
 
         # Load model
-        self.model = joblib.load('final_model_full_glove.pkl')
-        self.tf_vectorizer= joblib.load('final_tfidf.pkl')
-        self.idf_vector = joblib.load('final_idf.pkl')
-        self.pos_vectorizer = joblib.load('final_pos.pkl')
-
+        #self.model = joblib.load('VotingClassifier/final_model_full_glove.pkl')
+        self.model = joblib.load('newly_trained_model.pkl')
+        #self.tf_vectorizer= joblib.load('VotingClassifier/final_tfidf.pkl')
+        #self.idf_vector = joblib.load('VotingClassifier/final_idf.pkl')
+        #self.pos_vectorizer = joblib.load('VotingClassifier/final_pos.pkl')
+        self.tfidf = None
+        self.idf = None
+        self.pos = None
         # Load embeddings
-        glove_model_file = "glove.twitter.27B.200d.txt"
+        glove_model_file = "~/PycharmProjects/WinterTerm2018/glove.twitter.27B.200d.txt"
 
         # Uncomment this if using random embeddings
         # random_model_file = "random_model_combined_tweets.txt"
@@ -338,12 +342,55 @@ class VotingModel:
         print(len(tweets), "tweets detected")
 
         # Format data
-        tf_array = self.tf_vectorizer.fit_transform(tweets).toarray()
-        tfidf_array = tf_array * self.idf_vector
+        vectorizer = TfidfVectorizer(
+            tokenizer=tokenize,
+            preprocessor=preprocess,
+            ngram_range=(1, 3),
+            stop_words=stopwords,
+            use_idf=True,
+            smooth_idf=False,
+            binary=True,
+            norm=None,
+            decode_error='replace',
+            max_features=10000,
+            min_df=5,
+            max_df=0.75
+        )
+        # Construct tfidf matrix and get relevant scores
+        tfidf_array = vectorizer.fit_transform(tweets).toarray()
+        self.tfidf = vectorizer
+        self.idf = vectorizer.idf_
+
+
+        # tf_array = self.tf_vectorizer.fit_transform(tweets).toarray()
+        # tfidf_array = tf_array * self.idf_vector
         print("Built TF-IDF array")
 
-        pos_tags = get_pos_tags(tweets)
-        pos_array = self.pos_vectorizer.fit_transform(pos_tags).toarray()
+        # Get POS tags for tweets and save as a string
+        tweet_tags = get_pos_tags(tweets)
+
+        # We can use the TFIDF vectorizer to get a token matrix for the POS tags
+        pos_vectorizer = TfidfVectorizer(
+            tokenizer=None,
+            lowercase=False,
+            preprocessor=None,
+            ngram_range=(1, 3),
+            stop_words=None,
+            use_idf=False,
+            smooth_idf=False,
+            norm=None,
+            decode_error='replace',
+            max_features=5000,
+            min_df=5,
+            max_df=0.75,
+        )
+        self.pos = pos_vectorizer
+
+        # Construct POS TF matrix and get vocab dict
+        pos_array = pos_vectorizer.fit_transform(pd.Series(tweet_tags)).toarray()
+        print("Got POS Tags!")
+        # pos_tags = get_pos_tags(tweets)
+        # pos_array = self.pos_vectorizer.fit_transform(pos_tags).toarray()
         print("Built POS array")
 
         oth_array = get_oth_features(tweets)
@@ -361,15 +408,65 @@ class VotingModel:
         # Combine everything
         X = np.column_stack((tfidf_array, pos_array, oth_array, emb_array))
 
-        return X
+        X_ = pd.DataFrame(X)
+
+        X_.fillna(X_.mean(), inplace=True)
+
+        print(X_)
+        print("SHAPE OF TRAINED IS", X_.shape)
+
+        return X_
+
+    def transform_input(self, tweets, tf_vectorizer, idf_vector, pos_vectorizer):
+        """
+        FROM DAVIDSON ET. AL:
+
+        This function takes a list of tweets, along with used to
+        transform the tweets into the format accepted by the model.
+
+        Each tweet is decomposed into
+        (a) An array of TF-IDF scores for a set of n-grams in the tweet.
+        (b) An array of POS tag sequences in the tweet.
+        (c) An array of features including sentiment, vocab, and readability.
+
+        Returns a pandas dataframe where each row is the set of features
+        for a tweet.
+        """
+
+        tfidf_array = tf_vectorizer.transform(tweets).toarray()
+        #tfidf_array = tf_array*idf_vector
+        print("Test: Built TF-IDF array")
+
+        pos_tags = get_pos_tags(tweets)
+        pos_array = pos_vectorizer.transform(pos_tags).toarray()
+        print("Test: Built POS array")
+
+        oth_array = get_oth_features(tweets)
+        print("Test: Built other feature array")
+
+        clean_tweets = get_clean_tweets(tweets)
+        embedding_dim = 200
+
+        # Index2word is a list that contains the names of the words in the model's vocabulary.
+        index2word_set = set(self.emb.index2word)  # Convert to set for speed
+
+        emb_array = get_embeddings(clean_tweets, self.emb, embedding_dim, index2word_set)
+        print("Built Word embeddings array")
+
+        M = np.column_stack((tfidf_array, pos_array, oth_array, emb_array))
+
+        X_ = pd.DataFrame(M)
+
+        X_.fillna(X_.mean(), inplace=True)
+
+        return X_
 
     def train(self, dataset):
 
-        self.data = dataset
-        self.X = self.read_input(dataset)
-        self.y = [t.getLabel() for t in dataset]
+        X = self.read_input(dataset)
+        y = [t.getLabel() for t in dataset]
 
-        X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, random_state=42, test_size=0.1)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.1)
 
         clf1 = SGDClassifier(class_weight='balanced', penalty='l2', alpha=0.0001, max_iter=50, loss='log')
         clf1_pipe = Pipeline([('select', SelectFromModel(
@@ -409,17 +506,19 @@ class VotingModel:
         print("Model saved!")
 
 
+
     def predict(self, dataset):
 
-        self.data = dataset
-        self.X = self.read_input(dataset)
+        self.data = [t.getFullTweet() for t in dataset]
+        self.X = self.transform_input(self.data, self.tfidf, self.idf, self.pos)
+        print("SHAPE OF TEST IS", self.X.shape)
         self.y = self.model.predict(self.X)
 
         return self.y
 
-    def getConfusionMatrix(self):
+    def getConfusionMatrix(self, dataset):
 
-        y_labels = [t.getLabel() for t in self.data]
+        y_labels = [t.getLabel() for t in dataset]
 
         self.confusion_matrix = confusion_matrix(self.y, y_labels)
 
