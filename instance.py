@@ -10,11 +10,15 @@ __status__ = "Development"
 class Instance:
     def __init__(self):
         self.label = None
-        self.fulltweet = ""
-        self.wordlist = []
+        self.fulltweet = "" # Original tweet
+        self.wordlist = []  # Tokenized tweet
+        self.clean_tweet = "" # Processed tweet
 
     def __str__(self):
         return str([self.label, self.fulltweet])
+
+    def getCleanTweet(self):
+        return self.clean_tweet
 
     def getFullTweet(self):
         return self.fulltweet

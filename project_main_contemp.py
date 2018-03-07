@@ -1,13 +1,16 @@
-import random
-import re
-import sys
 import nltk
+from nltk.stem.porter import *
+import re
+import pandas as pd
+import random
+import sys
 
-#from bayes import BayesModel
-#from proximity import ProximityModel
 from instance import Instance
-#from lstm import LSTM
+# from bayes import BayesModel
+# from proximity import ProximityModel
+# from lstm import LSTM
 from VotingClassifier.VotingClassifierObject import VotingModel
+
 
 def main(tperc, seed, fpaths):
     files = openFiles(fpaths)
@@ -16,15 +19,15 @@ def main(tperc, seed, fpaths):
 
     # initialize all models
 
-    #b = BayesModel()
-    #p = ProximityModel()
+    # b = BayesModel()
+    # p = ProximityModel()
     v = VotingModel()
     # r = LSTM()
 
     # train all models (except voting, loaded)
 
-    #b.train(train_set)
-    #p.train(train_set)
+    # b.train(train_set)
+    # p.train(train_set)
     v.train(train_set)
     # r.train(train_set)
 
@@ -38,51 +41,97 @@ def main(tperc, seed, fpaths):
     # confusionMatrices = [b.getConfusionMatrix(), p.getConfusionMatrix(), v.getConfusionMatrix(), r.getConfusionMatrix()]
 
     # patch code
-    #confusionMatrices = [b.getConfusionMatrix(test_set1), p.getConfusionMatrix(test_set1)]
+    # confusionMatrices = [b.getConfusionMatrix(test_set1), p.getConfusionMatrix(test_set1)]
     confusionMatrices = [v.getConfusionMatrix(test_set1)]
 
     # weight second set of results, using first
     weightingInput = [
-        #[confusionMatrices[0] ,b.batchTest(test_set2)],
-        #[confusionMatrices[1], p.batchTest(test_set2)],
+        # [confusionMatrices[0] ,b.batchTest(test_set2)],
+        # [confusionMatrices[1], p.batchTest(test_set2)],
         [confusionMatrices[0], v.predict(test_set2)],
         # [confusionMatrices[3], r.predict(test_set2)]  # patch comment
     ]
 
+    # TODO Write weightResults
     guesses = weightResults(weightingInput)
     print(guesses)
 
     return guesses
 
 
-def weightResults(weightingInput):
-    # this code written for files formatted like: labeled_data.csv
-    weightingList = []
-    for pair in weightingInput:
-        cm = pair[0]
-        output = pair[1]
+def preprocess(text_string):
+    """
+    Accepts a text string and replaces:
+    1) urls with URLHERE
+    2) lots of whitespace with one instance
+    3) mentions with MENTIONHERE
 
-        print(cm)
+    This allows us to get standardized counts of urls and mentions
+    Without caring about specific people mentioned
+    """
+    space_pattern = '\s+'
+    giant_url_regex = ('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|'
+                       '[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+    mention_regex = '@[\w\-]+'
+    parsed_text = re.sub(space_pattern, ' ', text_string)
+    parsed_text = re.sub(giant_url_regex, 'URLHERE', parsed_text)
+    parsed_text = re.sub(mention_regex, 'MENTIONHERE', parsed_text)
+    # parsed_text = parsed_text.code("utf-8", errors='ignore')
+    return parsed_text
 
-        accuracyFor = dict()
-        for pred in [0, 1, 2]:  # should un-hard-code this at some point
-            total = 0
-            correct = 0
-            for act in [0, 1, 2]:
-                tuple_key = (pred, act)
-                if tuple_key in cm.keys():
-                    current = cm[tuple_key]
-                else:
-                    current = 0
-                if pred == act:
-                    correct += current
-                total += current
 
-            accuracyFor[pred] = float(correct) / total
+def tokenize(tweet):
+    """Removes punctuation & excess whitespace, sets to lowercase,
+    and stems tweets. Returns a list of stemmed tokens."""
+    stemmer = PorterStemmer()
+    tweet = " ".join(re.split("[^a-zA-Z]*", tweet.lower())).strip()
+    # tokens = re.split("[^a-zA-Z]*", tweet.lower())
+    tokens = [stemmer.stem(t) for t in tweet.split()]
+    return tokens
 
-        weightingList.append((accuracyFor, output))
 
-    return predictAll(weightingList)
+def basic_tokenize(tweet):
+    """Same as tokenize but without the stemming"""
+    tweet = " ".join(re.split("[^a-zA-Z.,!?]*", tweet.lower())).strip()
+    return tweet.split()
+
+
+def main_parser(f):
+    """"
+        @input file
+        @output list of instance objects
+
+        Reads files in the format as labeled_data.csv as a pandas dataframe
+        This means that it contains a top row with the words tweets | class,
+        so they can be referenced easily.
+
+        Creates instance objects with the full text, the tokenized text and the label
+    """
+
+    # Read inputs using pandas
+    df = pd.read_csv(f)
+    raw_tweets = df.tweets
+    labels = df['class'].astype(int)
+    instances = []
+
+    # Process tweets and create instances
+    for tweet, label in (raw_tweets, labels):
+        i = Instance()
+        i.label = label
+
+        # Get just text
+        clean_tweet = preprocess(tweet)
+        i.fulltweet = clean_tweet
+
+        # Tokenize tweet
+        tokenized_tweet = basic_tokenize(clean_tweet)
+        # stemmed_tweet = tokenize(clean_tweet)
+        i.wordlist = tokenized_tweet
+
+        instances.append(i)
+
+    return instances
+
 
 def predictAll(weightingList):
     guesses = []
@@ -118,74 +167,7 @@ def splitSets(tperc, seed, instances):
 def parseFiles(files):
     instances = []
     for f in files:
-        instances += parseSingle(f)
-    return instances
-
-
-def parseSingle(f):
-    instances = []
-
-    # stopwords = nltk.corpus.stopwords.words("english")  # TODO
-    stopwords = nltk.corpus.stopwords.words("english")
-    other_exclusions = ["#ff", "ff", "rt"]
-    stopwords.extend(other_exclusions)
-    stopwords = set(stopwords)
-
-    # # patch code
-    # stopwordsfile = open('stopWords.txt', 'r')
-    # stopwords = []
-    # for line in stopwordsfile:
-    #     stopwords.append(str(line).rstrip('\n'))
-    #
-    # # end patch code
-    #
-    # other_exclusions = ["#ff", "ff"]
-    # stopwords.extend(other_exclusions)
-    # stopwords = set(stopwords)  # set has faster existence test
-
-    # this code written for files formatted like: labeled_data.csv
-
-    skipped = 0  # keep track of malformed lines
-    lines = 0  # keep track of total
-
-    line = f.readline()  # strip first line
-    line = f.readline()
-    while line != "":
-        line = line.strip('"').rstrip('\n')
-        split = line.split(",")
-        lines +=1
-        try:
-            # strip non-words out of tweet, split
-            justWords = re.sub(r'[^a-zA-Z\s]+', '', split[6]).split()
-
-            # strip stopwords
-            for word in justWords:
-                if word in stopwords:
-                    justWords.remove(word)
-
-            # rejoining for fulltweet
-            ft = ""
-            for word in justWords:
-                ft += word + " "
-
-            # build instance
-            i = Instance()
-            i.label = int(split[5])
-            i.wordlist = justWords
-            i.fulltweet = ft
-
-            # test code
-            # print("parseSingle instance parsed: " + str(i))
-
-            instances.append(i)
-        except IndexError:
-            skipped += 1
-        except ValueError:
-            skipped += 1
-
-        line = f.readline()
-
-    print ("ParseSingle : Read " + str(lines) + " lines: " + str(skipped) + " skipped, " + str(lines - skipped) + " built.\n")
+        instances += main_parser(f)
     return instances
 
 
