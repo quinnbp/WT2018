@@ -116,12 +116,15 @@ def main_parser(f):
 
     # Process tweets and create instances
     for tweet, label in (raw_tweets, labels):
+
+        # Raw tweet and label
         i = Instance()
         i.label = label
+        i.fulltweet = tweet
 
         # Get just text
         clean_tweet = preprocess(tweet)
-        i.fulltweet = clean_tweet
+        i.clean_tweet = clean_tweet
 
         # Tokenize tweet
         tokenized_tweet = basic_tokenize(clean_tweet)
