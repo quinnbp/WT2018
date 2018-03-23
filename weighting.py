@@ -6,7 +6,7 @@ def weightResults(weightingInput):
     numresults = len(weightingInput[0][1])
     for pair in weightingInput:
         label_weight_dict = buildLabelWeighting(pair[0]) # takes cm dict
-        votinglist.append(pair[1], label_weight_dict)
+        votinglist.append((pair[1], label_weight_dict))
 
     return vote(votinglist, numresults)
 
@@ -18,7 +18,7 @@ def vote(votinglist, numresults):
             guess = m[0][y]  # each model's yth result
             prob_guess = m[1][guess]  # probability yth result is correct
 
-            if guess in vote.keys():
+            if guess in voted.keys():
                 voted[guess] += prob_guess
             else:
                 voted[guess] = prob_guess

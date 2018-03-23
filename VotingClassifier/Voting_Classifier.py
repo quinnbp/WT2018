@@ -9,14 +9,11 @@ Code originally written by Davidson et al. at https://github.com/t-davidson/hate
         - Added hard voting classifier (SGD Classifier, LinearSVM, Perceptron) instead of Logistic Regression Classifier
 """
 
-import string
-import re
+
 import pandas as pd
 import numpy as np
 import pickle
 import multiprocessing
-import sys
-import matplotlib
 import matplotlib.pyplot as plt
 import seaborn
 import gensim

@@ -4,8 +4,14 @@ import re
 import pandas as pd
 import random
 import sys
-
+import csv
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn
+from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix
 from instance import Instance
+from weighting import weightResults
 # from bayes import BayesModel
 # from proximity import ProximityModel
 # from lstm import LSTM
@@ -13,38 +19,39 @@ from VotingClassifier.VotingClassifierObject import VotingModel
 
 
 def main(tperc, seed, fpaths):
+    """Parses files, trains the models, tests the models,
+    creates the weights, makes predictions and evaluates results"""
+
     files = openFiles(fpaths)
     instances = parseFiles(files)
     train_set, test_set1, test_set2 = splitSets(tperc, seed, instances)
 
-    # initialize all models
+    # Initialize all models
 
     # b = BayesModel()
     # p = ProximityModel()
     v = VotingModel()
     # r = LSTM()
 
-    # train all models (except voting, loaded)
+    # Train all models
 
     # b.train(train_set)
     # p.train(train_set)
     v.train(train_set)
     # r.train(train_set)
 
-    # run models and store first set of results
+    # Run models and store first set of results
 
     v.predict(test_set1)
     # r.predict(test_set1)
 
-    # get confusion matrices for first set of results
+    # Get confusion matrices for first set of results
 
-    # confusionMatrices = [b.getConfusionMatrix(), p.getConfusionMatrix(), v.getConfusionMatrix(), r.getConfusionMatrix()]
-
-    # patch code
     # confusionMatrices = [b.getConfusionMatrix(test_set1), p.getConfusionMatrix(test_set1)]
     confusionMatrices = [v.getConfusionMatrix(test_set1)]
 
-    # weight second set of results, using first
+    # Weight second set of results, using first set
+
     weightingInput = [
         # [confusionMatrices[0] ,b.batchTest(test_set2)],
         # [confusionMatrices[1], p.batchTest(test_set2)],
@@ -52,11 +59,54 @@ def main(tperc, seed, fpaths):
         # [confusionMatrices[3], r.predict(test_set2)]  # patch comment
     ]
 
-    # TODO Write weightResults
+    # Get the weighting results
     guesses = weightResults(weightingInput)
-    print(guesses)
+    # print(guesses)
 
-    return guesses
+    # Compare results with actual labels
+    test_set2_labels = [i.getLabel() for i in test_set2]
+    evaluate_accuracy(guesses, test_set2_labels)
+
+    # Store second set of tweets and guesses
+    test_set2_tweets = [t.getFullTweet() for t in test_set2]
+    store_new_labels(test_set2_tweets, guesses)
+
+
+def store_new_labels(t2tweets, guesses):
+    """Creates a csv document that stores the tweets tested and their predicted labels"""
+
+    with open("FinalModel_Predictions.csv", "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(["tweet", "class"])
+        for tweet, guess in zip(t2tweets, guesses):
+            writer.writerow([tweet, guess])
+
+def evaluate_accuracy(guesses, labels):
+    """Compares labels returned by weighting method to labels in dataset,
+        produces a confusion matrix and prints the recall/precision/f1 score table
+    """
+    print(classification_report(labels, guesses))
+
+    # Confusion matrix making and storing
+    cfm = confusion_matrix(labels, guesses)
+
+    matrix_proportions = np.zeros((3, 3))
+    for i in range(0, 3):
+        matrix_proportions[i, :] = cfm[i, :] / float(cfm[i, :].sum())
+
+    names = ['Hate', 'Offensive', 'Neither']
+    confusion_df = pd.DataFrame(matrix_proportions, index=names, columns=names)
+    plt.figure(figsize=(5, 5))
+    seaborn.heatmap(confusion_df, annot=True, annot_kws={"size": 12}, cmap='gist_gray_r', cbar=False, square=True,
+                    fmt='.2f')
+    plt.ylabel(r'True categories', fontsize=14)
+    plt.xlabel(r'Predicted categories', fontsize=14)
+    plt.tick_params(labelsize=12)
+
+    #print(cfm)
+    #print(matrix_proportions)
+    plt.savefig("FinalModel_ConfusionMatrix.pdf")
+    print("Stored confusion matrix!")
 
 
 def preprocess(text_string):
@@ -110,12 +160,12 @@ def main_parser(f):
 
     # Read inputs using pandas
     df = pd.read_csv(f)
-    raw_tweets = df.tweets
+    raw_tweets = df.tweet
     labels = df['class'].astype(int)
     instances = []
 
     # Process tweets and create instances
-    for tweet, label in (raw_tweets, labels):
+    for tweet, label in zip(raw_tweets, labels):
 
         # Raw tweet and label
         i = Instance()
