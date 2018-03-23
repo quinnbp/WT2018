@@ -186,28 +186,6 @@ def main_parser(f):
     return instances
 
 
-def predictAll(weightingList):
-    guesses = []
-    for idx in range(0, len(weightingList[0][1])):  # for each instance
-        votes = dict()
-        for mpair in weightingList:  # for each model's results
-            voteFor = mpair[1][idx]  # what the model guessed
-            if voteFor in votes.keys():
-                votes[voteFor] += mpair[0][voteFor]  # how 'much' of a vote that should be (by accuracy)
-            else:
-                votes[voteFor] = mpair[0][voteFor]
-        maxVal = 0
-        vote = None
-        for label in votes.keys():  # get max voted
-            if votes[label] > maxVal:
-                maxVal = votes[label]
-                vote = label
-
-        guesses.append(vote)  # guess for instance
-
-    return guesses
-
-
 def splitSets(tperc, seed, instances):
     random.seed(seed)
     random.shuffle(instances)
