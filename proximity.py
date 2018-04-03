@@ -14,7 +14,6 @@ class ProximityModel:
         self.wordmap = dict()
         self.cm = dict()
 
-
     def train(self, train_list):  # instances must be int-labeled
         for inst in train_list:
             for word in inst.getWordList():
@@ -25,7 +24,6 @@ class ProximityModel:
                     self.wordmap[word][1] += 1
         for k in self.wordmap:
             self.wordmap[k] = float(self.wordmap[k][0]) / self.wordmap[k][1]
-
 
     def buildConfusionMatrix(self, test_list):
         guesses = self.batchTest(test_list)
@@ -39,11 +37,9 @@ class ProximityModel:
                 self.cm[cm_tuple] = 0
             self.cm[cm_tuple] +=1
 
-
     def getConfusionMatrix(self, test_list):
         self.buildConfusionMatrix(test_list)
         return self.cm
-
 
     def batchTest(self, test_list):
         orderedGuesses = []
@@ -51,7 +47,6 @@ class ProximityModel:
             orderedGuesses.append(self.test(inst))
         print(orderedGuesses)
         return orderedGuesses
-
 
     def test(self, inst):
         guess = 0
