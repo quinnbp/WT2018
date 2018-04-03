@@ -19,77 +19,23 @@ from __future__ import print_function
 import argparse
 import sys
 
-import nltk
 import numpy as np
 import pandas
 from sklearn import metrics
 import tensorflow as tf
-import instance
-import string
-from nltk.tokenize import word_tokenize
-from unidecode import unidecode
-import os
 
 MAX_DOCUMENT_LENGTH = 140
 EMBEDDING_SIZE = 50
-n_words = 100
+n_words = 0
 MAX_LABEL = 15
 WORDS_FEATURE = 'words'  # Name of the input words feature.
 
-__author__ = "Sage Vouse"
-__email__  = "svouse@oberlin.edu"
-__status__ = "Development"
 
 class LSTM:
   def __init__(self):
-    self.testing_data_for_cm = []
-    self.testing_labels_for_cm = []
-    self.max_word_length = 16
-    print("passed init!")
-
-  # encode sentences
-  def encode_one_hot(self, sentence):
-        # Convert Sentences to np.array of Shape 
-        # ('sent_length', 'word_length', 'emb_size')
-
-        max_word_length = self.max_word_length
-        sent = []
-        
-        # We need to keep track of the maximum length of the sentence in a minibatch
-        # so that we can pad them with zeros, this is why we return the length of every
-        # sentences after they are converted to one-hot tensors
-        SENT_LENGTH = 0
-        
-        # Here, we remove any non-printable characters in a sentence (mostly
-        # non-ASCII characters)
-        printable = string.printable
-        encoded_sentence = filter(lambda x: x in printable, sentence)
-        
-        # word_tokenize() splits a sentence into an array where each element is
-        # a word in the sentence, for example, 
-        # "My name is Charles" => ["My", "name", "is", Charles"]
-        # Unidecode convert characters to utf-8
-        for word in word_tokenize(unidecode(encoded_sentence)):
-            
-            # Encode one word as a matrix of shape [max_word_length x ALPHABET_SIZE]
-            word_encoding = np.zeros(shape=(max_word_length, ALPHABET_SIZE))
-            
-            for i, char in enumerate(word):
-            
-                # If the character is not in the alphabet, ignore it    
-                try:
-                    char_encoding = DICT[char]
-                    one_hot = np.zeros(ALPHABET_SIZE)
-                    one_hot[char_encoding] = 1
-                    word_encoding[i] = one_hot
-
-                except Exception as e:
-                    pass
-
-            sent.append(np.array(word_encoding))
-            SENT_LENGTH += 1
-
-        return np.array(sent), SENT_LENGTH
+  	self.testing_data_for_cm = []
+  	self.testing_labels_for_cm = []
+  	print("passed init!")
 
   def estimator_spec_for_softmax_classification(
       self, logits, labels, mode):
@@ -123,7 +69,7 @@ class LSTM:
     # maps word indexes of the sequence into [batch_size, sequence_length,
     # EMBEDDING_SIZE].
     word_vectors = tf.contrib.layers.embed_sequence(
-        features, vocab_size=n_words, embed_dim=EMBEDDING_SIZE)
+        features[WORDS_FEATURE], vocab_size=n_words, embed_dim=EMBEDDING_SIZE)
 
     # Split into list of embedding per word, while removing doc length dim.
     # word_list results to be a list of tensors [batch_size, EMBEDDING_SIZE].
@@ -140,7 +86,7 @@ class LSTM:
     # neural network of last step) and pass it as features for softmax
     # classification over output classes.
     logits = tf.layers.dense(encoding, MAX_LABEL, activation=None)
-    return self.estimator_spec_for_softmax_classification(
+    return estimator_spec_for_softmax_classification(
         logits=logits, labels=labels, mode=mode)
 
   # @param list of training instances
@@ -148,21 +94,18 @@ class LSTM:
     tf.logging.set_verbosity(tf.logging.INFO)
 
     # Get the labels.
-    train_inst = list()
-    labels = list()
+    train_dict = dict()
+    labels = set()
 
     for inst in train_list: 
         l = inst.getLabel()
-        if (l== 'neither'):
-          labels.append(0)
-        if (l== 'racist'):
-          labels.append(1)
-        if (l== 'sexist'):
-          labels.append(2)
-        train_inst.append(self.encode_one_hot(inst.getCleanTweet()))
+        if l not in labels:
+            labels.add(l)
+            train_dict[l] = []
+        train_dict[l].append(inst)
 
     # Define training data
-    x_train = train_inst
+    x_train = train_dict
     y_train = labels
 
     # Process the vocabulary.
@@ -177,7 +120,7 @@ class LSTM:
     print('Total words: %d' % n_words)
 
     # Build the model.
-    model_fn = self.rnn_model(x_train, y_train, tf.contrib.learn.ModeKeys)
+    model_fn = self.rnn_model
     classifier = tf.estimator.Estimator(model_fn=model_fn)
 
     # Train the model.
@@ -187,16 +130,13 @@ class LSTM:
         batch_size=len(x_train),
         num_epochs=None,
         shuffle=True)
-    classifier.train(train_input_fn, hooks=None,
-    steps=None,
-    max_steps=None)
+    classifier.train(train_input_fn, hooks=None, steps=None, max_steps=None) #fixing this rn
 
     # Save the model.
     saved = tf.train.Saver()
-
       
 # @param list of testing instances
-  def batchTest(test_list):  
+  def batchTest(self, test_list):  
     tf.logging.set_verbosity(tf.logging.INFO)
 
     # Get the labels.
@@ -244,50 +184,13 @@ class LSTM:
       saved = tf.train.Saver()
 
   def getConfusionMatrix(self):  
-	    return tf.confusion_matrix(labels=self.testing_data_for_cm, predictions=self.testing_labels_for_cm, num_classes= None)
-#test
-#def main():
-#    test = LSTM()
-#    first = instance.Instance()
-#    first.label = "racist"
-#    first.fulltweet = "I hate minorities"
-#    second = instance.Instance()
-#    second.label = "sexist"
-#    second.fulltweet = "I hate femmes"
-#    third = instance.Instance()
-#    third.label = "neither"
-#    third.fulltweet = "I hate myself"
-#    fourth = instance.Instance()
-#    fourth.label = "racist"
-#    fourth.fulltweet = "I hate people of color"
-#    fifth = instance.Instance()
-#    fifth.label = "sexist"
-#    fifth.fulltweet = "I hate people who aren't men"
-#    sixth = instance.Instance()
-#    sixth.label = "neither"
-#    sixth.fulltweet = "I hate that I can't properly socialize with people I find attractive"
-#    seventh = instance.Instance()
-#    seventh.label = "racist"
-#    seventh.fulltweet = "I hate people who aren't white"
-#    eighth = instance.Instance()
-#    eighth.label = "sexist"
-#    eighth.fulltweet = "Men are better than everyone"
-#    ninth = instance.Instance()
-#    ninth.label = "neither"
-#    ninth.fulltweet = "I hate CUTIES FML"
-#    tenth = instance.Instance()
-#    tenth.label = "racist"
-#    tenth.fulltweet = "I hate minorities"
-#    eleventh = instance.Instance()
-#    eleventh.label = "sexist"
-#    eleventh.fulltweet = "Tech is mostly men because men are better"
-#    twelth = instance.Instance()
-#    twelth.label = "neither"
-#    twelth.fulltweet = "I hate"
-#    t_list = [first, second, third, fourth, fifth, sixth, seventh, eighth, ninth, tenth, eleventh, twelth]    
-#    test.train(t_list)
+	return tf.confusion_matrix(labels=self.testing_data_for_cm, predictions=self.testing_labels_for_cm, num_classes= None)
+
+def main():
+    test = LSTM()
+    #test.train()
     #test.getConfusionMatrix()
     
 
-#if __name__ =="__main__":
- # main()
+if __name__ =="__main__":
+  main()
