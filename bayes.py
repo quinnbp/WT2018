@@ -7,6 +7,8 @@ __author__ = "Quinn Barker-Plummer"
 __email__  = "qbarkerp@oberlin.edu"
 __status__ = "Development"
 
+# Current accuracy: 9.9 %
+
 import math
 
 class BayesModel:
@@ -44,6 +46,7 @@ class BayesModel:
 
     def buildConfusionMatrix(self, test_list):
         guesses = self.batchTest(test_list)
+        #print(guesses)
         actuals = []
         for inst in test_list:
             actuals.append(inst.getLabel())
@@ -72,13 +75,14 @@ class BayesModel:
             lwc = self.labels_dict[label]
             for word in words:  # this is where the actual Bayesian probability happens
                 if word in lwc.keys():
-                    prob[label] += math.log((float(lwc[word] + 1)) / self.totals_dict[label])
+                    prob[label] += - math.log((float(lwc[word] + 1)) / self.totals_dict[label])
                 else:
-                    prob[label] += math.log(1.0 / self.totals_dict[label])  # psuedocounts (nonzero)
+                    prob[label] += - math.log(1.0 / self.totals_dict[label])  # psuedocounts (nonzero)
 
         maxVal = 0
         currentLabel = ""
         for label in prob.keys():
+            #print(prob[label])
             if prob[label] > maxVal:
                 currentLabel = label
                 maxVal = prob[label]
