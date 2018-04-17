@@ -11,11 +11,12 @@ import seaborn
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from instance import Instance
-from weighting import weightResults
-# from bayes import BayesModel
-# from proximity import ProximityModel
-# from lstm import LSTM
+from weighting import voting
+#from bayes import BayesModel
+from proximity import ProximityModel
+#from lstm import LSTM
 from VotingClassifier.VotingClassifierObject import VotingModel
+from confusion_matrix import ConfusionMatrix
 
 
 def main(tperc, seed, fpaths):
@@ -28,39 +29,46 @@ def main(tperc, seed, fpaths):
 
     # Initialize all models
 
-    # b = BayesModel()
-    # p = ProximityModel()
+    p = ProximityModel()
     v = VotingModel()
+    # b = BayesModel()
     # r = LSTM()
 
     # Train all models
 
-    # b.train(train_set)
-    # p.train(train_set)
+    p.train(train_set)
     v.train(train_set)
+    # b.train(train_set)
     # r.train(train_set)
 
     # Run models and store first set of results
 
-    v.predict(test_set1)
-    # r.predict(test_set1)
+    p_pred = p.batchTest(test_set1)
+    v_pred = v.batchTest(test_set1)
+    # b_pred = b.batchTest(test_set1)
+    # r_pred = r.batchTest(test_set1)
 
     # Get confusion matrices for first set of results
 
-    # confusionMatrices = [b.getConfusionMatrix(test_set1), p.getConfusionMatrix(test_set1)]
-    confusionMatrices = [v.getConfusionMatrix(test_set1)]
+    test_set1_labels = [i.getLabel() for i in test_set1]
+    p_cm = ConfusionMatrix(test_set1_labels, p_pred, "Proximity")
+    v_cm = ConfusionMatrix(test_set1_labels, v_pred, "Voting")
+    # b_cm = ConfusionMatrix(test_set1_labels, b_pred, "Bayes")
+    # r_cm = ConfusionMatrix(test_set1_labels, r_pred, "LSTM")
+
+    confusionMatrices = [p_cm, v_cm]
+    # confusionMatices = [p_cm, v_cm, b_cm, r_cm]
 
     # Weight second set of results, using first set
-
     weightingInput = [
-        # [confusionMatrices[0] ,b.batchTest(test_set2)],
-        # [confusionMatrices[1], p.batchTest(test_set2)],
-        [confusionMatrices[0], v.predict(test_set2)],
-        # [confusionMatrices[3], r.predict(test_set2)]  # patch comment
+        [confusionMatrices[0], p.batchTest(test_set2)],
+        [confusionMatrices[1], v.batchTest(test_set2)],
+        # [confusionMatrices[2] ,b.batchTest(test_set2)],
+        # [confusionMatrices[3], r.batchTest(test_set2)],
     ]
 
     # Get the weighting results
-    guesses = weightResults(weightingInput)
+    guesses = voting(weightingInput)
     # print(guesses)
 
     # Compare results with actual labels
@@ -69,17 +77,17 @@ def main(tperc, seed, fpaths):
 
     # Store second set of tweets and guesses
     test_set2_tweets = [t.getFullTweet() for t in test_set2]
-    store_new_labels(test_set2_tweets, guesses)
+    store_new_labels(test_set2_tweets, guesses, test_set2_labels)
 
 
-def store_new_labels(t2tweets, guesses):
+def store_new_labels(t2tweets, guesses, labels):
     """Creates a csv document that stores the tweets tested and their predicted labels"""
 
     with open("FinalModel_Predictions.csv", "w") as f:
         writer = csv.writer(f)
-        writer.writerow(["tweet", "class"])
-        for tweet, guess in zip(t2tweets, guesses):
-            writer.writerow([tweet, guess])
+        writer.writerow(["tweet", "class", "label"])
+        for tweet, guess, label in zip(t2tweets, guesses, labels):
+            writer.writerow([tweet, guess, label])
 
 def evaluate_accuracy(guesses, labels):
     """Compares labels returned by weighting method to labels in dataset,

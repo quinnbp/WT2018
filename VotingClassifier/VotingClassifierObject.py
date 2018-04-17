@@ -507,7 +507,7 @@ class VotingModel:
 
 
 
-    def predict(self, dataset):
+    def batchTest(self, dataset):
 
         self.data = [t.getFullTweet() for t in dataset]
         self.X = self.transform_input(self.data, self.tfidf, self.idf, self.pos)
@@ -530,7 +530,7 @@ class VotingModel:
                 key = (i, j)
                 value = self.confusion_matrix[i][j]
                 conf_dict[key] = value
-                #print("Pairs are", key, value)
+                print("Pairs are", key, value)
 
         return conf_dict
 
