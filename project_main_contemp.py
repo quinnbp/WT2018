@@ -18,6 +18,7 @@ from proximity import ProximityModel
 from VotingClassifier.VotingClassifierObject import VotingModel
 from confusion_matrix import ConfusionMatrix
 
+# TODO make evaluate_accuracy be an instance of the ConfusionMatrix class
 
 def main(tperc, seed, fpaths):
     """Parses files, trains the models, tests the models,
