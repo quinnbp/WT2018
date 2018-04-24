@@ -30,21 +30,21 @@ def main(tperc, seed, fpaths):
 
     # Initialize all models
 
-    p = ProximityModel()
+    #p = ProximityModel()
     v = VotingModel()
     # b = BayesModel()
     # r = LSTM()
 
     # Train all models
 
-    p.train(train_set)
+    #p.train(train_set)
     v.train(train_set)
     # b.train(train_set)
     # r.train(train_set)
 
     # Run models and store first set of results
 
-    p_pred = p.batchTest(test_set1)
+    #p_pred = p.batchTest(test_set1)
     v_pred = v.batchTest(test_set1)
     # b_pred = b.batchTest(test_set1)
     # r_pred = r.batchTest(test_set1)
@@ -52,18 +52,18 @@ def main(tperc, seed, fpaths):
     # Get confusion matrices for first set of results
 
     test_set1_labels = [i.getLabel() for i in test_set1]
-    p_cm = ConfusionMatrix(test_set1_labels, p_pred, "Proximity")
+   # p_cm = ConfusionMatrix(test_set1_labels, p_pred, "Proximity")
     v_cm = ConfusionMatrix(test_set1_labels, v_pred, "Voting")
     # b_cm = ConfusionMatrix(test_set1_labels, b_pred, "Bayes")
     # r_cm = ConfusionMatrix(test_set1_labels, r_pred, "LSTM")
 
-    confusionMatrices = [p_cm, v_cm]
+    confusionMatrices = [v_cm]
     # confusionMatices = [p_cm, v_cm, b_cm, r_cm]
 
     # Weight second set of results, using first set
     weightingInput = [
-        [confusionMatrices[0], p.batchTest(test_set2)],
-        [confusionMatrices[1], v.batchTest(test_set2)],
+       # [confusionMatrices[0], p.batchTest(test_set2)],
+        [confusionMatrices[0], v.batchTest(test_set2)]
         # [confusionMatrices[2] ,b.batchTest(test_set2)],
         # [confusionMatrices[3], r.batchTest(test_set2)],
     ]

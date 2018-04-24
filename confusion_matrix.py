@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import seaborn
 import math
+import CEN
 
 class ConfusionMatrix:
 
@@ -32,6 +33,10 @@ class ConfusionMatrix:
             matrix_proportions[i, :] = p_cm[i, :] / float(p_cm[i, :].sum())
 
         return matrix_proportions
+
+    def get_CEN_score(self):
+        '''Returns CEN score for this confusion matrix'''
+        return CEN.calcCEN(self.number_cm)
 
     def get_number_cm(self):
         '''Returns number confusion matrix'''

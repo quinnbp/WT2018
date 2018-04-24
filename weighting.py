@@ -19,8 +19,7 @@ def voting(weighting_input):
         conf_matrix = pair[0]
 
         # Make the CEN scores as {cls1:score1, cls2:score2,...}
-        num_matrix = conf_matrix.get_number_cm()
-        CEN_scores[num_cls] = CEN.calcCEN(num_matrix)
+        CEN_scores[num_cls] = conf_matrix.get_CEN_score()
         num_cls += 1
 
         # Create the weight dictionary for a given model in the format {label:weight}
@@ -47,8 +46,8 @@ def voting(weighting_input):
         voting_list.append(weighted_votes)
 
     # Choose a form of voting criteria
-    weighting_options = ["Precision", "CEN", "CEN_Precision" "Equal Vote"]
-    weighting_opt = weighting_options[0]
+    weighting_options = ["Precision", "CEN", "CEN_Precision", "Equal Vote"]
+    weighting_opt = weighting_options[2]
 
     # Give the CEN scores as input if voting criteria requires them
     if weighting_opt == "CEN" or weighting_opt == "CEN_Precision":
@@ -224,10 +223,16 @@ def CEN_precision_vote(n_results, v_list, CEN): # (1 - CEN)* Precision !!!!
 
             for label in vote.keys():
                 if label in f_vote.keys():
-                    f_vote[label] += vote[label] * (1 - CEN[cls_num])
+                    f_vote[label] += vote[label] #* (1 - CEN[cls_num])
                 else:
-                    f_vote[label] = vote[label] * (1 - CEN[cls_num])
+                    f_vote[label] = vote[label] #* (1 - CEN[cls_num])
 
+            # Multiply the vote * (1 - CEN_score)
+            for fvote_label in f_vote.keys():
+                if f_vote[fvote_label] != 0:
+                    f_vote[fvote_label] = f_vote[fvote_label]*(1 - CEN[cls_num])
+
+        #print(f_vote)
         f_votes_list.append(f_vote)
         final_vote = 0
         score = 0

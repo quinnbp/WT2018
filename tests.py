@@ -1,4 +1,5 @@
 from confusion_matrix import ConfusionMatrix
+from sklearn.metrics import classification_report
 from weighting import voting
 import numpy as np
 
@@ -27,30 +28,36 @@ def test_confusion_matrix():
 
 def test_weighting():
     # Create confusion matrices for random classifiers
-    yactual1 = [2, 0, 2, 2, 0, 1, 1, 2, 2, 0, 1, 2]
+    yactual = [2, 0, 2, 2, 0, 1, 1, 2, 2, 0, 1, 2]
     ypred1 = np.random.randint(3, size=12)
 
-    cm1 = ConfusionMatrix(yactual1, ypred1, "cls_1")
+    cm1 = ConfusionMatrix(yactual, ypred1, "cls_1")
 
-    yactual2 = [2, 0, 2, 2, 0, 1, 1, 2, 2, 0, 1, 2]
+    yactual = [2, 0, 2, 2, 0, 1, 1, 2, 2, 0, 1, 2]
     ypred2 = np.random.randint(3, size=12)
 
-    cm2 = ConfusionMatrix(yactual2, ypred2, "cls_2")
+    cm2 = ConfusionMatrix(yactual, ypred2, "cls_2")
 
-    yactual3 = [2, 0, 2, 2, 0, 1, 1, 2, 2, 0, 1, 2]
+    yactual = [2, 0, 2, 2, 0, 1, 1, 2, 2, 0, 1, 2]
     ypred3 = np.random.randint(3, size=12)
 
-    cm3 = ConfusionMatrix(yactual3, ypred3, "cls_3")
+    cm3 = ConfusionMatrix(yactual, ypred3, "cls_3")
 
-    yactual4 = [2, 0, 2, 2, 0, 1, 1, 2, 2, 0, 1, 2]
+    yactual = [2, 0, 2, 2, 0, 1, 1, 2, 2, 0, 1, 2]
     ypred4 = np.random.randint(3, size=12)
 
-    cm4 = ConfusionMatrix(yactual4, ypred4, "cls_4")
+    cm4 = ConfusionMatrix(yactual, ypred4, "cls_4")
 
     weight_pairs = [[cm1, ypred1], [cm2, ypred2], [cm3, ypred3], [cm4, ypred4]]
 
+    # Check that CEN score is being calculated
+    #print(cm1.get_CEN_score(), cm2.get_CEN_score(), cm3.get_CEN_score(), cm4.get_CEN_score())
+
     # Get final votes based on pairs
     votes = voting(weight_pairs)
+
+    # Check metrics
+    print(classification_report(yactual, votes))
 
     print(votes)
 

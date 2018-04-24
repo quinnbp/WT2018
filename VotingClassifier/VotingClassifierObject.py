@@ -289,7 +289,7 @@ def get_embeddings(clean_tweets, model, num_features, index2word_set):
     print("Getting embeddings...")
     for tweet in clean_tweets:
         # Print a status message every 1000th tweet
-        if count % 1000. == 0.:
+        if count % 1000 == 0.:
             print("Tweet %d of %d" % (count, len(clean_tweets)))
 
         # Get the embeddings
@@ -360,6 +360,8 @@ class VotingModel:
         tfidf_array = vectorizer.fit_transform(tweets).toarray()
         self.tfidf = vectorizer
         self.idf = vectorizer.idf_
+
+
 
 
         # tf_array = self.tf_vectorizer.fit_transform(tweets).toarray()
