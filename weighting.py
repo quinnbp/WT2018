@@ -162,7 +162,7 @@ def CEN_precision_vote(n_results, v_list, CEN): # (1 - CEN)* Precision !!!!
         # Contains aggregate votes for all the classifiers, f_vote = {0:1.4, 1:0.1, 2:0.6}
         f_vote = {}
 
-        # For every list of weighted votes (1 for every classifier) 
+        # For every list of weighted votes (1 for every classifier)
         for cls_votes in v_list[cls_num]:
 
             # Get the vote dict for tweet i
