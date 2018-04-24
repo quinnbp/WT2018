@@ -1,7 +1,6 @@
 import CEN
-import random
 
-# TODO Should the votes/weighting system be a class?
+# TODO Optimize weighting methods, make multi_cls vote include the major for loops and call weighting inside
 # TODO Delete print statements
 
 def voting(weighting_input):
@@ -147,7 +146,62 @@ def precision_vote(n_results, v_list):
     return final_votes
 
 def CEN_vote(n_results, v_list, CEN): # CEN score
-    return
+
+    final_votes = []
+    cls_num = 0
+
+    f_votes_list = []
+
+    # Get the final vote for every tweet in the list
+    for i in range(n_results):
+
+        # Contains aggregate votes for all the classifiers, f_vote = {0:1.4, 1:0.1, 2:0.6}
+        f_vote = {}
+
+        # For every list of weighted votes (1 for every classifier)
+        for cls_votes in v_list[cls_num]:
+
+            # Get the vote dict for tweet i
+            vote = cls_votes[i]
+
+            for label in vote.keys():
+
+                # The vote weight is either 0 or the CEN score of the classifier
+                if vote[label] == 0:
+                    vote_value = 0
+                else:
+                    vote_value = (1 - CEN[cls_num])
+
+                # We use the CEN score of the classifier as the value of the votes
+                if label in f_vote.keys():
+                    f_vote[label] += vote_value
+                else:
+                    f_vote[label] = vote_value
+
+        f_votes_list.append(f_vote)
+        final_vote = 0
+        score = 0
+
+        # print(f_vote)
+        # print(type(f_vote[0]))
+
+
+        # TODO Are we choosing the label that has the least error? or what?
+        # Get the label that gets the highest aggregate precision score
+        for l in f_vote.keys():
+            if f_vote[l] > score:
+                score = f_vote[l]
+                final_vote = l
+
+        # TODO How do we undo ties?
+
+        final_votes.append(final_vote)
+
+    # print("Sample votes are:")
+    # print(f_votes_list[0])
+    # print(f_votes_list[1])
+    # print(final_votes)
+    return final_votes
 
 def CEN_precision_vote(n_results, v_list, CEN): # (1 - CEN)* Precision !!!!
 
@@ -181,7 +235,7 @@ def CEN_precision_vote(n_results, v_list, CEN): # (1 - CEN)* Precision !!!!
         # print(f_vote)
         # print(type(f_vote[0]))
 
-        # Get the label that gets the highest aggregate precision score
+        # Get the label that gets the highest aggregate weighted precision score
         for l in f_vote.keys():
             if f_vote[l] > score:
                 score = f_vote[l]
