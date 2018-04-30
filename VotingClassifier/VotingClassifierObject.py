@@ -361,9 +361,6 @@ class VotingModel:
         self.tfidf = vectorizer
         self.idf = vectorizer.idf_
 
-
-
-
         # tf_array = self.tf_vectorizer.fit_transform(tweets).toarray()
         # tfidf_array = tf_array * self.idf_vector
         print("Built TF-IDF array")
@@ -468,7 +465,7 @@ class VotingModel:
         X = self.read_input(dataset)
         y = [t.getLabel() for t in dataset]
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.1)
+        #X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.1)
 
         clf1 = SGDClassifier(class_weight='balanced', penalty='l2', alpha=0.0001, max_iter=50, loss='log')
         clf1_pipe = Pipeline([('select', SelectFromModel(
@@ -489,7 +486,7 @@ class VotingModel:
                                 voting='hard')
 
         # Train, test and save model
-        eclf.fit(X_train, y_train)
+        eclf.fit(X, y)
 
         # scores = cross_val_score(eclf, X_train, y_train,
         #                          cv=StratifiedKFold(n_splits=5, random_state=42).split(X_train, y_train),
@@ -497,16 +494,15 @@ class VotingModel:
         #
         # print("Accuracy: %0.2f (+/- %0.2f) [%s]" % (scores.mean(), scores.std(), "Voting Classifier"))
 
-        pred = eclf.predict(X_test)
+        #pred = eclf.predict(X_test)
 
-        print("classification report:")
-        print(classification_report(y_test, pred))
+        #print("classification report:")
+        #print(classification_report(y_test, pred))
 
         #Save and store model
         self.model = eclf
         joblib.dump(eclf, "newly_trained_model.pkl")
         print("Model saved!")
-
 
 
     def batchTest(self, dataset):
