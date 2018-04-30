@@ -16,7 +16,7 @@ from weighting import voting
 #from bayes import BayesModel
 from proximity import ProximityModel
 #from lstm import LSTM
-from VotingClassifier.VotingClassifierObject import VotingModel
+from voting_classifier import VotingModel
 from confusion_matrix import ConfusionMatrix
 
 # TODO Run tests on multiple voting systems at once
