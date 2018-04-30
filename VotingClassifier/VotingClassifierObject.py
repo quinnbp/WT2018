@@ -514,23 +514,6 @@ class VotingModel:
 
         return self.y
 
-    def getConfusionMatrix(self, dataset):
-
-        y_labels = [t.getLabel() for t in dataset]
-
-        self.confusion_matrix = confusion_matrix(self.y, y_labels)
-
-        conf_dict = {}
-
-        for i in range(len(self.confusion_matrix)):
-            #total_row = sum(conf[i])
-            for j in range(len(self.confusion_matrix[i])):
-                key = (i, j)
-                value = self.confusion_matrix[i][j]
-                conf_dict[key] = value
-                print("Pairs are", key, value)
-
-        return conf_dict
 
 if __name__ == '__main__':
 
