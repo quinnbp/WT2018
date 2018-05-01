@@ -45,4 +45,6 @@ The project will use publicly available data in the form of collections of Tweet
 	- Open predictions and create confusion matrices
 	- Run multiple weighted voting methods, print classification report and store confusion matrices 
 	
+## Authors
 
+Quinn Barker-Plummer, Daniel Firebanks, Sage Vouse
