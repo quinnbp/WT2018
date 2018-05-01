@@ -9,6 +9,7 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn
+import tensorflow as tf
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from instance import Instance
@@ -31,11 +32,15 @@ def main(tperc, seed, fpaths, weighting_type):
     train_set, test_set1, test_set2 = splitSets(tperc, seed, instances)
 
     # Initialize all models
-
+    saver = tf.train.Saver()
     p = ProximityModel()
     v = VotingModel()
     # b = BayesModel()
     # r = LSTM()
+    with tf.Session() as sess:
+        print('Loading model %s...' % 'savedlstm')
+        saver.restore(sess, 'savedlstm')
+        print('Done!')
 
     print("Initialized all models!")
 
