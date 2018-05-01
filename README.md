@@ -1,19 +1,5 @@
-# WT2018
-Winter Term Project 2018
+# Winter Term Project 2018
 
-## Dependencies:
-
-- nltk
-- numpy
-- pandas
-- sklearn
-- scipy
-- tensorflow
-- gensim
-- vaderSentiment
-- matplotlib
-- seaborn
-	
 ## Idea
 
 The aim of this project is to study how machine learning can be used to develop statistical models that can automatically identify whether the contents of a given Tweet contain offensive language, or even hate speech, based on the words used and the context they form.  Although an important goal of its own, the ultimate vision of this research is that such a model might be used in the future to enable intelligent agents (e.g., conversational chatbots) to discern between acceptable and unacceptable conversational patterns and avoid learning their own undesirable behaviors while interacting with people.
@@ -33,11 +19,28 @@ The project will use publicly available data in the form of collections of Tweet
 - Original dataset (for hate speech, offensive and neutral tweets): Datasets/labeled_data.csv
 - Alternative dataset (for sexist, racist and neutral tweets): Datasets/All_Tweets_June2016_Dataset.csv
 
+## Dependencies:
+
+- nltk
+- numpy
+- pandas
+- sklearn
+- scipy
+- tensorflow
+- gensim
+- vaderSentiment
+- matplotlib
+- seaborn
+	
 ## Instructions
 
 1. Run project_main.py, commenting out undesired models 
 	- Train models and make predictions
 	- Store predictions for test_set_1 and test_set_2
+	- Sample run:
+	```
+	python3 project_main.py 0.8 1234 CEN_Precision Datasets/labeled_data.csv
+	```
 2. Run tests.py 
 	- Open predictions and create confusion matrices
 	- Run multiple weighted voting methods, print classification report and store confusion matrices 
