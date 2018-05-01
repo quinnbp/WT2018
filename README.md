@@ -38,7 +38,7 @@ The project will use publicly available data in the form of collections of Tweet
 1. Run project_main.py, commenting out undesired models 
 	- Train models and make predictions
 	- Store predictions for test_set_1 and test_set_2
-2. Run tests.py --> This will run all voting weights 
+2. Run tests.py 
 	- Open predictions and create confusion matrices
 	- Run multiple weighted voting methods, print classification report and store confusion matrices 
 	
