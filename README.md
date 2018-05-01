@@ -1,4 +1,4 @@
-# Winter Term Project 2018
+# Ensemble Learning for Tweet Classification of Hate Speech and Offensive Language - Winter/Spring Project 2018
 
 ## Idea
 
@@ -19,7 +19,7 @@ The project will use publicly available data in the form of collections of Tweet
 - Original dataset (for hate speech, offensive and neutral tweets): Datasets/labeled_data.csv
 - Alternative dataset (for sexist, racist and neutral tweets): Datasets/All_Tweets_June2016_Dataset.csv
 
-## Dependencies:
+## Dependencies
 
 - nltk
 - numpy
