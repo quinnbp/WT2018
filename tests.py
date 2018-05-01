@@ -164,10 +164,10 @@ def test_run_multiple_voting():
     print(classification_report(actual2, votes_eq))
 
     # Create final confusion matrices depending on votes
-    p_cm = ConfusionMatrix(actual2, votes_p, "Precision_Voting")
-    p_CEN_cm = ConfusionMatrix(actual2, votes_CEN_p, "CEN_Precision_Voting")
-    CEN_cm = ConfusionMatrix(actual2, votes_CEN, "CEN_Voting")
-    eq_cm = ConfusionMatrix(actual2, votes_eq, "Equal_Voting")
+    p_cm = ConfusionMatrix(actual2, votes_p, "Precision")
+    p_CEN_cm = ConfusionMatrix(actual2, votes_CEN_p, "CEN_Precision")
+    CEN_cm = ConfusionMatrix(actual2, votes_CEN, "CEN")
+    eq_cm = ConfusionMatrix(actual2, votes_eq, "Equal")
 
     # Store confusion matrices
 

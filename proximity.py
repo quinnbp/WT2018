@@ -45,7 +45,7 @@ class ProximityModel:
         orderedGuesses = []
         for inst in test_list:
             orderedGuesses.append(self.test(inst))
-        print(orderedGuesses)
+        #print(orderedGuesses)
         return orderedGuesses
 
     def test(self, inst):

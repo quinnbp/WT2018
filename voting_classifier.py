@@ -271,6 +271,7 @@ def make_feature_vec(tweet, model, num_features, index2word_set):
             num_words += 1
             feature_vec = np.add(feature_vec, model[word])
 
+    np.seterr(divide='ignore', invalid='ignore')
     feature_vec = np.divide(feature_vec, num_words)
     #print(feature_vec)
     #print(feature_vec.shape)
@@ -289,8 +290,8 @@ def get_embeddings(clean_tweets, model, num_features, index2word_set):
     print("Getting embeddings...")
     for tweet in clean_tweets:
         # Print a status message every 1000th tweet
-        if count % 1000 == 0.:
-            print("Tweet %d of %d" % (count, len(clean_tweets)))
+        #if count % 1000 == 0.:
+         #   print("Tweet %d of %d" % (count, len(clean_tweets)))
 
         # Get the embeddings
         tweets_feature_vecs[count] = make_feature_vec(tweet, model, num_features, index2word_set)
@@ -411,8 +412,8 @@ class VotingModel:
 
         X_.fillna(X_.mean(), inplace=True)
 
-        print(X_)
-        print("SHAPE OF TRAINED IS", X_.shape)
+        #print(X_)
+        #print("SHAPE OF TRAINED IS", X_.shape)
 
         return X_
 
@@ -509,7 +510,7 @@ class VotingModel:
 
         self.data = [t.getFullTweet() for t in dataset]
         self.X = self.transform_input(self.data, self.tfidf, self.idf, self.pos)
-        print("SHAPE OF TEST IS", self.X.shape)
+        #print("SHAPE OF TEST IS", self.X.shape)
         self.y = self.model.predict(self.X)
 
         return self.y

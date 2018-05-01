@@ -76,39 +76,58 @@ def main(tperc, seed, fpaths, weighting_type):
     # confusionMatices = [p_cm, v_cm, b_cm, r_cm]
 
     # Save individual confusion matrices to files
+
     for cm in confusionMatrices:
         cm.store_cm()
 
     print("Individual confusion matrices created and stored!")
 
+    # Second set of predictions
+
+    p_pred2 = p.batchTest(test_set2)
+    v_pred2 = v.batchTest(test_set2)
+    #b_pred2 = b.batchTest(test_set2)
+    #r_pred2 = r.batchTest(test_set2)
+
+    print("Predictions made for second test set!")
+
+    # Store second set of predictions
+
+    preds2 = [p_pred2, v_pred2]  # , b_pred2, r_pred2]
+    test_set2_labels = [i.getLabel() for i in test_set2]
+    store_preds(preds2, test_set2_labels, 2)
+
+    print("Stored predictions for second test set!")
+
     # Weight second set of results, using confusion matrices from first set
+
     weightingInput = [
-        [confusionMatrices[0], p.batchTest(test_set2)],
-        [confusionMatrices[1], v.batchTest(test_set2)]
-        # [confusionMatrices[2] ,b.batchTest(test_set2)],
-        # [confusionMatrices[3], r.batchTest(test_set2)],
+        [confusionMatrices[0], p_pred2],
+        [confusionMatrices[1], v_pred2]
+        # [confusionMatrices[2] ,b_pred2],
+        # [confusionMatrices[3], r_pred2],
     ]
 
     # Get the weighting results
+
     guesses = voting(weightingInput, weighting_type)
     print("Voting done!")
     # print(guesses)
 
-    # Compare results with actual labels
-    test_set2_labels = [i.getLabel() for i in test_set2]
-
     # Create confusion matrix for final model and store it in a file
+
     final_cm = ConfusionMatrix(test_set2_labels, guesses, "Final_Model_" + weighting_type)
     final_cm.store_cm()
     print("Stored confusion matrix!")
 
     # Store second set of tweets and guesses
+
     test_set2_tweets = [t.getFullTweet() for t in test_set2]
     store_new_labels(test_set2_tweets, guesses, test_set2_labels)
     print("Stored new predictions!")
 
 
-def alternative_main(tperc, seed, fpaths, weighting_type):
+def alternative_main(tperc, seed, weighting_type, fpaths):
     """COPY OF MAIN FUNCTION - EXCEPT ONLY USED TO STORE PREDICTIONS FOR BOTH TEST SETS
         Parses files, trains the models, tests the models,
         creates the weights, makes predictions"""
@@ -170,6 +189,66 @@ def alternative_main(tperc, seed, fpaths, weighting_type):
     print("Stored predictions for second test set!")
 
 
+def run_multiple_voting():
+    """Run tests on multiple weighting systems given stored predictions of the classifiers in main()
+        To be used in conjunction with alternative_main to determine which weighting method performs better
+    """
+
+    # Load predictions from all classifiers and actual labels for test_set_1
+    preds1, actual1 = load_preds(1)
+
+    # Load predictions from all classifiers and actual labels for test_set_2
+    preds2, actual2 = load_preds(2)
+
+    # Create confusion matrices for each classifier
+    p_cm = ConfusionMatrix(actual1, preds1[0], "Proximity")
+    v_cm = ConfusionMatrix(actual1, preds1[1], "Voting")
+    # b_cm = ConfusionMatrix(actual1, preds1[2], "Bayes")
+    # r_cm = ConfusionMatrix(actual1, preds1[2], "LSTM")
+
+    confusionMatrices = [p_cm, v_cm]
+    # confusionMatices = [p_cm, v_cm, b_cm, r_cm]
+
+    # Save individual confusion matrices to files
+    for cm in confusionMatrices:
+        cm.store_cm()
+
+    print("Individual confusion matrices created and stored!")
+
+    # Weight second set of results, using confusion matrices from first set
+    weightingInput = [
+        [confusionMatrices[0], preds2[0]],
+        [confusionMatrices[1], preds2[1]]
+        # [confusionMatrices[2] ,b.batchTest(test_set2)],
+        # [confusionMatrices[3], r.batchTest(test_set2)],
+    ]
+
+    # Get the weighted voting results
+    votes_p = voting(weightingInput, "Precision")
+    votes_CEN_p = voting(weightingInput, "CEN_Precision")
+    votes_CEN = voting(weightingInput, "CEN")
+    votes_eq = voting(weightingInput, "Equal_Vote")
+
+    # Check metrics
+    print(classification_report(actual2, votes_p))
+    print(classification_report(actual2, votes_CEN_p))
+    print(classification_report(actual2, votes_CEN))
+    print(classification_report(actual2, votes_eq))
+
+    # Create final confusion matrices depending on votes
+    p_cm = ConfusionMatrix(actual2, votes_p, "Precision")
+    p_CEN_cm = ConfusionMatrix(actual2, votes_CEN_p, "CEN_Precision")
+    CEN_cm = ConfusionMatrix(actual2, votes_CEN, "CEN")
+    eq_cm = ConfusionMatrix(actual2, votes_eq, "Equal")
+
+    # Store confusion matrices
+    p_cm.store_cm()
+    p_CEN_cm.store_cm()
+    CEN_cm.store_cm()
+    eq_cm.store_cm()
+
+    return votes_p, votes_CEN_p, votes_CEN, votes_eq
+
 def store_new_labels(t2tweets, guesses, labels):
     """Creates a csv document that stores the tweets tested and their predicted labels"""
 
@@ -197,6 +276,8 @@ def store_preds(preds, actual, num_test):
 
     for i in range(len(preds)):
         pickle.dump(preds[i], files[i])
+
+    pickle.dump(actual, f5)
 
 def load_preds(num_test):
     """Loads the predictions file and returns a list of prediction lists
@@ -347,4 +428,5 @@ if __name__ == "__main__":
                   "\nPrecision, CEN_Precision, CEN, Equal_Vote")
         else:
             #main(tperc, seed, fpaths, weighting_type)
-            alternative_main(tperc, seed, fpaths, weighting_type)
+            alternative_main(tperc, seed, weighting_type, fpaths)
+            #run_multiple_voting()
