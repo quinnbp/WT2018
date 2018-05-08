@@ -11,13 +11,28 @@ __status__ = "Development"
 
 import math
 
+
 class BayesEliminationModel:
     def __init__(self):
         self.labels_dict = dict()  # k = label, v = dict
         self.totals_dict = dict()  # k = label, v = int
         self.cm = dict()
+        self.stopWords = set()
+
+    def buildStopWords(self):
+        try:
+            f = open("stopWords.txt", 'r')
+        except FileNotFoundError:
+            print("BayesElim: NonFatal: No stopwords file found.")
+            return  # if no file found
+
+        line = f.readline()
+        while line != "":
+            self.stopWords.add(str(line))
 
     def train(self, train_list):  # @param list of training instances, stop words removed
+        self.buildStopWords()
+
         train_dict = dict()
         labels = set()
 
@@ -34,11 +49,12 @@ class BayesEliminationModel:
             for instance in train_dict[label]:
                 tweet = instance.getWordList()
                 for word in tweet:
-                    totalwords += 1
-                    if word in wordcounts.keys():
-                        wordcounts[word] += 1
-                    else:
-                        wordcounts[word] = 1
+                    if word not in stopWords:
+                        totalwords += 1
+                        if word in wordcounts.keys():
+                            wordcounts[word] += 1
+                        else:
+                            wordcounts[word] = 1
 
             self.labels_dict[label] = wordcounts
             self.totals_dict[label] = totalwords
@@ -90,7 +106,7 @@ class BayesEliminationModel:
 
 
     def testSingle(self, inst):
-        rLabels = self.labels_dict.keys()
+        rLabels = list(self.labels_dict.keys())
         while len(rLabels) > 1:
             rLabels.remove(testSingleElim(inst, rLabels))
         return rLabels[0]
