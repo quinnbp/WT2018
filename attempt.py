@@ -240,7 +240,7 @@ class LSTM(object):
                         batch += 1
         print("TRAIN FINAL CHECKPOINT")
 
-    def evaluate_test_set(self, path):
+    def evaluate_test_set(self):
         '''
         Evaluate Test Set
         '''
@@ -259,39 +259,32 @@ class LSTM(object):
         saver = tf.train.Saver()
         print("EVAL CHECKPOINT 1")
         with tf.Session() as sess:
-            print('Loading model %s...' % path)
-            saver.restore(sess, path)
+            print('Loading model %s...' % SAVE_PATH)
+            saver.restore(sess, SAVE_PATH)
             print('Done!')
-            #loss = []
-            #accuracy = []
+            loss = []
+            accuracy = []
 
-            #with open(VALID_SET, 'r') as f:
-                #reader = TextReader(f, max_word_length)
-                #for minibatch in reader.iterate_minibatch(BATCH_SIZE, dataset=VALID_SET):
-                    #batch_x, batch_y = minibatch
+            with open(VALID_SET, 'r') as f:
+                reader = TextReader(f, max_word_length)
+                for minibatch in reader.iterate_minibatch(BATCH_SIZE, dataset=VALID_SET):
+                    batch_x, batch_y = minibatch
 
-                    #c, a = sess.run([cost, acc], feed_dict={self.X: batch_x, self.Y: batch_y})
-                    #loss.append(c)
-                    #accuracy.append(a)
+                    c, a = sess.run([cost, acc], feed_dict={self.X: batch_x, self.Y: batch_y})
+                    loss.append(c)
+                    accuracy.append(a)
 
-                #loss = np.mean(loss)
-                #accuracy = np.mean(accuracy)
-                #print('Valid loss: %.5f -- Valid Accuracy: %.5f' % (loss, accuracy))
-                #print("EVAL CHECKPOINT 2")
-                #return loss, accuracy
-        return pred
+                loss = np.mean(loss)
+                accuracy = np.mean(accuracy)
+                print('Valid loss: %.5f -- Valid Accuracy: %.5f' % (loss, accuracy))
+                print("EVAL CHECKPOINT 2")
+                return loss, accuracy
 
     def predict_sentences(self, sentences):
         '''
         Analyze Some Sentences
         :sentences: list of sentences
-        e.g.: sentences = ['this is veeeryyy bad!!', 'I don\'t think he will be happy abt this',
-                            'YOU\'re a fool!', 'I\'m sooo happY!!!']
-        Sentence: "this is veeeryyy bad!!" , yielded results (pos/neg): 0.04511/0.95489, prediction: neg
-        Sentence: "I dont think he will be happy abt this" , yielded results (pos/neg): 0.05929/0.94071, prediction: neg
-        Sentence: "YOUre such an incompetent fool!" , yielded results (pos/neg): 0.48503/0.51497, prediction: neg ***
-        Sentence: "Im sooo happY!!!" , yielded results (pos/neg): 0.97455/0.02545, prediction: pos
-        '''
+    	'''
         BATCH_SIZE = self.hparams['BATCH_SIZE']
         max_word_length = self.hparams['max_word_length']
         pred = self.prediction
@@ -369,3 +362,9 @@ class LSTM(object):
             'learning_rate':    0.0001,
             'patience':         10000,
         }
+
+if __name__ == '__main__':
+    network = LSTM()
+    network.build()
+    network.train()
+    network.evaluate_test_set()
