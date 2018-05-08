@@ -49,7 +49,7 @@ class BayesEliminationModel:
             for instance in train_dict[label]:
                 tweet = instance.getWordList()
                 for word in tweet:
-                    if word not in stopWords:
+                    if word not in self.stopWords:
                         totalwords += 1
                         if word in wordcounts.keys():
                             wordcounts[word] += 1
