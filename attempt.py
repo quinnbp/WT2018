@@ -367,8 +367,6 @@ test_preload(sentences):
     for value in sentences:
         print('processing sentence: %s' % value)
 
-        from lib_model.char_lstm import *
-
         network = LSTM()
         network.build()
         if sentences:
