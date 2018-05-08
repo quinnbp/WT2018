@@ -283,7 +283,7 @@ class LSTM(object):
     def predict_sentences(self, sentences):
         '''
         Analyze Some Sentences
-        :sentences: list of sentences (instances)
+        :sentences: list of sentences
     	'''
         BATCH_SIZE = self.hparams['BATCH_SIZE']
         max_word_length = self.hparams['max_word_length']
@@ -298,7 +298,7 @@ class LSTM(object):
 
             # Add placebo value '0,' at the beginning of the sentences to
             # use the make_minibatch() method
-            sentences = ['0,' + s.getCleanTweet() for s in sentences]
+            sentences = ['0,' + s for s in sentences]
 
             with open(TEST_SET, 'r') as f:
                 reader = TextReader(file=f, max_word_length=max_word_length)
@@ -363,8 +363,13 @@ class LSTM(object):
             'patience':         10000,
         }
 
-if __name__ == '__main__':
-    network = LSTM()
-    network.build()
-    network.train()
-    network.evaluate_test_set()
+test_preload(sentences):
+    for value in sentences:
+        print('processing sentence: %s' % value)
+
+        from lib_model.char_lstm import *
+
+        network = LSTM()
+        network.build()
+        if sentences:
+            network.predict_sentences(sentences)
