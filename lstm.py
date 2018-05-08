@@ -33,9 +33,9 @@ WORDS_FEATURE = 'words'  # Name of the input words feature.
 
 class LSTM:
   def __init__(self):
-  	self.testing_data_for_cm = []
-  	self.testing_labels_for_cm = []
-  	print("passed init!")
+    self.testing_data_for_cm = []
+    self.testing_labels_for_cm = []
+    print("passed init!")
 
   def estimator_spec_for_softmax_classification(
       self, logits, labels, mode):
@@ -80,7 +80,7 @@ class LSTM:
     _, encoding = tf.nn.static_rnn(cell, word_list, dtype=tf.float32)
 
     logits = tf.layers.dense(encoding, MAX_LABEL, activation=None)
-    return estimator_spec_for_softmax_classification(
+    return self.estimator_spec_for_softmax_classification(
         logits=logits, labels=labels, mode=mode)
 
   # @param list of training instances
@@ -141,7 +141,7 @@ class LSTM:
         l = inst.getLabel()
         if l not in labels:
             labels.add(l)
-            train_dict[l] = []
+            test_dict[l] = []
         test_dict[l].append(inst)
 
     # Define testing data
@@ -178,7 +178,7 @@ class LSTM:
       saved = tf.train.Saver()
 
   def getConfusionMatrix(self):  
-	return tf.confusion_matrix(labels=self.testing_data_for_cm, predictions=self.testing_labels_for_cm, num_classes= None)
+    return tf.confusion_matrix(labels=self.testing_data_for_cm, predictions=self.testing_labels_for_cm, num_classes= None)
 
 def main():
     test = LSTM()

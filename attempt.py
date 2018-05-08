@@ -4,20 +4,21 @@ from textReader import *
 import tensorflow as tf
 from tensorflow.contrib import rnn
 import numpy as np
-import Queue
+import queue as Queue
 
-TRAIN_SET ='Datasets/All_Tweets_June2016_Dataset.csv'
-TEST_SET ='Datasets/labeled_data.csv'
-VALID_SET ='Datasets/labeled_data.csv' #TODO: split and switch test and valid up
-SAVE_PATH ='savedlstm'
-LOGGING_PATH ='log.txt'
+TRAIN_SET = 'Datasets/All_Tweets_June2016_Dataset.csv'
+TEST_SET = 'Datasets/labeled_data.csv'
+VALID_SET = 'Datasets/labeled_data.csv'  # TODO: split and switch test and valid up
+SAVE_PATH = 'savedlstm'
+LOGGING_PATH = 'log.txt'
 ALPHABET_SIZE = 70
+
 
 class LSTM(object):
     """ Character-Level LSTM Implementation """
 
     def __init__(self):
-    	print("INIT")
+        print("INIT")
         # X is of shape ('b', 'sentence_length', 'max_word_length', 'alphabet_size')
         self.hparams = self.get_hparams()
         max_word_length = self.hparams['max_word_length']
@@ -26,14 +27,14 @@ class LSTM(object):
 
     def build(self,
               training=True,
-              testing_batch_size=10,#00,
+              testing_batch_size=10,  # 00,
               kernels=[1, 2, 3, 4, 5, 6, 7],
               kernel_features=[25, 50, 75, 100, 125, 150, 175],
               rnn_size=650,
               dropout=0.0,
               size=700,
-              train_samples=1600 * 0.95, #removed three zeros
-              valid_samples=1600 * 0.05): #removed three zeros
+              train_samples=1600 * 0.95,  # removed three zeros
+              valid_samples=1600 * 0.05):  # removed three zeros
 
         self.size = size
         self.hparams = self.get_hparams()
@@ -162,7 +163,7 @@ class LSTM(object):
             epoch = 0
 
             while epoch <= EPOCHS and not DONE:
-            	print("ENTERED TRAIN WHILE")
+                print("ENTERED TRAIN WHILE")
                 loss = 0.0
                 batch = 1
                 epoch += 1
@@ -172,40 +173,40 @@ class LSTM(object):
                     print("MADE READER")
                     num = 0
                     for minibatch in reader.iterate_minibatch(BATCH_SIZE, dataset=TRAIN_SET):
-                    	print("FOR MINIBATCH")
+                        print("FOR MINIBATCH")
                         batch_x, batch_y = minibatch
 
                         _, c, a = sess.run([optimizer, cost, acc], feed_dict={self.X: batch_x, self.Y: batch_y})
 
                         loss += c
 
-                        if batch % 10 == 0: #changed from 100 to 10
-                        	#print("TRAIN CHECKPOINT 2")
+                        if batch % 10 == 0:  # changed from 100 to 10
+                            # print("TRAIN CHECKPOINT 2")
                             # Compute Accuracy on the Training set and print some info
                             print('Epoch: %5d/%5d -- batch: %5d/%5d -- Loss: %.4f -- Train Accuracy: %.4f' %
-                                  (epoch, EPOCHS, batch, n_batch, loss/batch, a))
+                                  (epoch, EPOCHS, batch, n_batch, loss / batch, a))
 
                             # Write loss and accuracy to some file
                             log = open(LOGGING_PATH, 'a')
-                            log.write('%s, %6d, %.5f, %.5f \n' % ('train', epoch * batch, loss/batch, a))
+                            log.write('%s, %6d, %.5f, %.5f \n' % ('train', epoch * batch, loss / batch, a))
                             log.close()
 
-                        #  ------------ 
+                        # ------------
                         # EARLY STOPPING
                         # --------------
 
                         # Compute Accuracy on the Validation set, check if validation has improved, save model, etc
-                        if batch % 50 == 0: #changed from 500 to 50
-                        	#print("TRAIN CHECKPOINT 3")
+                        if batch % 50 == 0:  # changed from 500 to 50
+                            # print("TRAIN CHECKPOINT 3")
                             accuracy = []
                             print("TRAIN CHECK 3")
 
                             # accuracy is computed on testing set b/c no valid set
                             # instead of valid set, change TEST_SET to VALID_SET to compute accuracy on valid set
-                            with open(TRAIN_SET, 'r') as ff: #CHANGE TO TEST
+                            with open(TRAIN_SET, 'r') as ff:  # CHANGE TO TEST
                                 valid_reader = TextReader(ff, max_word_length)
-                                for mb in valid_reader.iterate_minibatch(BATCH_SIZE, dataset=TEST_SET): 
-                                	#print("IN MB TRAIN FOR LOOP")
+                                for mb in valid_reader.iterate_minibatch(BATCH_SIZE, dataset=TEST_SET):
+                                    # print("IN MB TRAIN FOR LOOP")
                                     valid_x, valid_y = mb
                                     a = sess.run([acc], feed_dict={self.X: valid_x, self.Y: valid_y})
                                     accuracy.append(a)
@@ -214,7 +215,7 @@ class LSTM(object):
 
                                 # if accuracy has improved, save model and boost patience
                                 if mean_acc > best_acc:
-                                	#print("SAVING MODEL IF CASE")
+                                    # print("SAVING MODEL IF CASE")
                                     best_acc = mean_acc
                                     save_path = saver.save(sess, SAVE_PATH)
                                     patience = self.hparams['patience']
@@ -229,13 +230,13 @@ class LSTM(object):
                                         break
 
                                 print('Epoch: %5d/%5d -- batch: %5d/%5d -- Valid Accuracy: %.4f' %
-                                     (epoch, EPOCHS, batch, n_batch, mean_acc))
+                                      (epoch, EPOCHS, batch, n_batch, mean_acc))
                                 print("TRAIN CHECKPOINT 4")
                                 # Write validation accuracy to log file
                                 log = open(LOGGING_PATH, 'a')
                                 log.write('%s, %6d, %.5f \n' % ('valid', epoch * batch, mean_acc))
                                 log.close()
-                        num+=1
+                        num += 1
 
                         batch += 1
         print("TRAIN FINAL CHECKPOINT")
@@ -312,7 +313,7 @@ class LSTM(object):
                           (s, p[0][i][0], p[0][i][1], 'pos' if max(p[0][i]) == p[0][i][0] else 'neg'))
             print("PREDICT")
             return p
-        
+
     def categorize_sentences(self, sentences):
         """ Op for categorizing multiple sentences (> BATCH_SIZE) """
         # encode sentences
@@ -351,19 +352,20 @@ class LSTM(object):
                 results.append(p)
         print("CAT")
         return results
-                        
+
     def get_hparams(self):
         ''' Get Hyperparameters '''
         print("GET IT")
         return {
-            'BATCH_SIZE':       64,
-            'EPOCHS':           500,
-            'max_word_length':  16,
-            'learning_rate':    0.0001,
-            'patience':         10000,
+            'BATCH_SIZE': 64,
+            'EPOCHS': 500,
+            'max_word_length': 16,
+            'learning_rate': 0.0001,
+            'patience': 10000,
         }
 
-test_preload(sentences):
+
+def test_preload(sentences):
     for value in sentences:
         print('processing sentence: %s' % value)
 
