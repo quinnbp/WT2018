@@ -240,7 +240,7 @@ class LSTM(object):
                         batch += 1
         print("TRAIN FINAL CHECKPOINT")
 
-    def evaluate_test_set(self):
+    def evaluate_test_set(self, path):
         '''
         Evaluate Test Set
         '''
@@ -259,26 +259,27 @@ class LSTM(object):
         saver = tf.train.Saver()
         print("EVAL CHECKPOINT 1")
         with tf.Session() as sess:
-            print('Loading model %s...' % SAVE_PATH)
-            saver.restore(sess, SAVE_PATH)
+            print('Loading model %s...' % path)
+            saver.restore(sess, path)
             print('Done!')
-            loss = []
-            accuracy = []
+            #loss = []
+            #accuracy = []
 
-            with open(VALID_SET, 'r') as f:
-                reader = TextReader(f, max_word_length)
-                for minibatch in reader.iterate_minibatch(BATCH_SIZE, dataset=VALID_SET):
-                    batch_x, batch_y = minibatch
+            #with open(VALID_SET, 'r') as f:
+                #reader = TextReader(f, max_word_length)
+                #for minibatch in reader.iterate_minibatch(BATCH_SIZE, dataset=VALID_SET):
+                    #batch_x, batch_y = minibatch
 
-                    c, a = sess.run([cost, acc], feed_dict={self.X: batch_x, self.Y: batch_y})
-                    loss.append(c)
-                    accuracy.append(a)
+                    #c, a = sess.run([cost, acc], feed_dict={self.X: batch_x, self.Y: batch_y})
+                    #loss.append(c)
+                    #accuracy.append(a)
 
-                loss = np.mean(loss)
-                accuracy = np.mean(accuracy)
-                print('Valid loss: %.5f -- Valid Accuracy: %.5f' % (loss, accuracy))
-                print("EVAL CHECKPOINT 2")
-                return loss, accuracy
+                #loss = np.mean(loss)
+                #accuracy = np.mean(accuracy)
+                #print('Valid loss: %.5f -- Valid Accuracy: %.5f' % (loss, accuracy))
+                #print("EVAL CHECKPOINT 2")
+                #return loss, accuracy
+        return pred
 
     def predict_sentences(self, sentences):
         '''
@@ -368,9 +369,3 @@ class LSTM(object):
             'learning_rate':    0.0001,
             'patience':         10000,
         }
-
-if __name__ == '__main__':
-    network = LSTM()
-    network.build()
-    network.train()
-    network.evaluate_test_set()
