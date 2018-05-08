@@ -108,7 +108,7 @@ class BayesEliminationModel:
     def testSingle(self, inst):
         rLabels = list(self.labels_dict.keys())
         while len(rLabels) > 1:
-            rLabels.remove(testSingleElim(inst, rLabels))
+            rLabels.remove(self.testSingleElim(inst, rLabels))
         return rLabels[0]
 
 

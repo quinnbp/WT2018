@@ -1,7 +1,7 @@
 # Some packages we will need:
 import numpy as np
 from nltk.tokenize import word_tokenize
-from unidecode import unidecode
+import unidecode
 import string
 import os
 
