@@ -1,10 +1,12 @@
+#from tensorflow.python.ops.gen_nn_ops import conv2d
+
 from data_utils import *
-from ops import *
+#import tensorflow.python.ops as ops
 from textReader import *
 import tensorflow as tf
 from tensorflow.contrib import rnn
 import numpy as np
-import Queue
+import queue as Queue
 
 TRAIN_SET ='Datasets/All_Tweets_June2016_Dataset.csv'
 TEST_SET ='Datasets/labeled_data.csv'
@@ -17,12 +19,13 @@ class LSTM(object):
     """ Character-Level LSTM Implementation """
 
     def __init__(self):
-    	print("INIT")
+        print("INIT")
         # X is of shape ('b', 'sentence_length', 'max_word_length', 'alphabet_size')
         self.hparams = self.get_hparams()
         max_word_length = self.hparams['max_word_length']
         self.X = tf.placeholder('float32', shape=[None, None, max_word_length, ALPHABET_SIZE], name='X')
         self.Y = tf.placeholder('float32', shape=[None, 2], name='Y')
+        self.prediction = None
 
     def build(self,
               training=True,
@@ -47,6 +50,34 @@ class LSTM(object):
             BATCH_SIZE = testing_batch_size
             self.BATCH_SIZE = BATCH_SIZE
         print("BUILD")
+
+        def linear(input_, output_size, scope=None):
+            '''
+            Linear map: output[k] = sum_i(Matrix[k, i] * args[i] ) + Bias[k]
+            Args:
+                args: a tensor or a list of 2D, batch x n, Tensors.
+            output_size: int, second dimension of W[i].
+            scope: VariableScope for the created subgraph; defaults to "Linear".
+          Returns:
+            A 2D Tensor with shape [batch x output_size] equal to
+            sum_i(args[i] * W[i]), where W[i]s are newly created matrices.
+          Raises:
+            ValueError: if some of the arguments has unspecified or wrong shape.
+          '''
+
+            shape = input_.get_shape().as_list()
+            if len(shape) != 2:
+                raise ValueError("Linear is expecting 2D arguments: %s" % str(shape))
+            if not shape[1]:
+                raise ValueError("Linear expects shape[1] of arguments: %s" % str(shape))
+            input_size = shape[1]
+
+            # Now the computation.
+            with tf.variable_scope(scope or "SimpleLinear"):
+                matrix = tf.get_variable("Matrix", [output_size, input_size], dtype=input_.dtype)
+                bias_term = tf.get_variable("Bias", [output_size], dtype=input_.dtype)
+
+            return tf.matmul(input_, tf.transpose(matrix)) + bias_term
 
         # borrowing heavily from https://github.com/mkroutikov/tf-lstm-char-cnn/blob/master/model.py
         def highway(input_, size, num_layers=1, bias=-2.0, f=tf.nn.relu, scope='Highway'):
@@ -87,7 +118,7 @@ class LSTM(object):
                     reduced_length = self.max_word_length - kernel_size + 1
 
                     # [batch_size * sentence_length x max_word_length x embed_size x kernel_feature_size]
-                    conv = conv2d(input_, kernel_feature_size, 1, kernel_size, name="kernel_%d" % kernel_size)
+                    conv = tf.nn.conv2d(input_, kernel_feature_size, 1, kernel_size, name="kernel_%d" % kernel_size) #ALSO MODIFIED THIS
 
                     # [batch_size * sentence_length x 1 x 1 x kernel_feature_size]
                     pool = tf.nn.max_pool(tf.tanh(conv), [1, 1, reduced_length, 1], [1, 1, 1, 1], 'VALID')
@@ -131,7 +162,7 @@ class LSTM(object):
             outputs = tf.transpose(outputs, [1, 0, 2])
             last = outputs[-1]
 
-        self.prediction = softmax(last, 2)
+        self.prediction = tf.nn.softmax(last, 2) # MODIFIED THIS LINE
 
     def train(self):
         BATCH_SIZE = self.hparams['BATCH_SIZE']
@@ -162,7 +193,7 @@ class LSTM(object):
             epoch = 0
 
             while epoch <= EPOCHS and not DONE:
-            	print("ENTERED TRAIN WHILE")
+                print("ENTERED TRAIN WHILE")
                 loss = 0.0
                 batch = 1
                 epoch += 1
@@ -172,7 +203,7 @@ class LSTM(object):
                     print("MADE READER")
                     num = 0
                     for minibatch in reader.iterate_minibatch(BATCH_SIZE, dataset=TRAIN_SET):
-                    	print("FOR MINIBATCH")
+                        print("FOR MINIBATCH")
                         batch_x, batch_y = minibatch
 
                         _, c, a = sess.run([optimizer, cost, acc], feed_dict={self.X: batch_x, self.Y: batch_y})
@@ -180,7 +211,7 @@ class LSTM(object):
                         loss += c
 
                         if batch % 10 == 0: #changed from 100 to 10
-                        	#print("TRAIN CHECKPOINT 2")
+                            #print("TRAIN CHECKPOINT 2")
                             # Compute Accuracy on the Training set and print some info
                             print('Epoch: %5d/%5d -- batch: %5d/%5d -- Loss: %.4f -- Train Accuracy: %.4f' %
                                   (epoch, EPOCHS, batch, n_batch, loss/batch, a))
@@ -196,7 +227,7 @@ class LSTM(object):
 
                         # Compute Accuracy on the Validation set, check if validation has improved, save model, etc
                         if batch % 50 == 0: #changed from 500 to 50
-                        	#print("TRAIN CHECKPOINT 3")
+                            #print("TRAIN CHECKPOINT 3")
                             accuracy = []
                             print("TRAIN CHECK 3")
 
@@ -205,7 +236,7 @@ class LSTM(object):
                             with open(TRAIN_SET, 'r') as ff: #CHANGE TO TEST
                                 valid_reader = TextReader(ff, max_word_length)
                                 for mb in valid_reader.iterate_minibatch(BATCH_SIZE, dataset=TEST_SET): 
-                                	#print("IN MB TRAIN FOR LOOP")
+                                    #print("IN MB TRAIN FOR LOOP")
                                     valid_x, valid_y = mb
                                     a = sess.run([acc], feed_dict={self.X: valid_x, self.Y: valid_y})
                                     accuracy.append(a)
@@ -214,7 +245,7 @@ class LSTM(object):
 
                                 # if accuracy has improved, save model and boost patience
                                 if mean_acc > best_acc:
-                                	#print("SAVING MODEL IF CASE")
+                                    #print("SAVING MODEL IF CASE")
                                     best_acc = mean_acc
                                     save_path = saver.save(sess, SAVE_PATH)
                                     patience = self.hparams['patience']
@@ -284,7 +315,8 @@ class LSTM(object):
         '''
         Analyze Some Sentences
         :sentences: list of sentences (instances)
-    	'''
+        '''
+
         BATCH_SIZE = self.hparams['BATCH_SIZE']
         max_word_length = self.hparams['max_word_length']
         pred = self.prediction
