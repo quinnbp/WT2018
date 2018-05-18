@@ -13,17 +13,68 @@ class ProximityModel:
     def __init__(self):
         self.wordmap = dict()
         self.cm = dict()
+        self.stopwords = set()
 
-    def train(self, train_list):  # instances must be int-labeled
+    def buildStopWords(self):
+        try:
+            f = open("stopWords.txt", 'r')
+        except FileNotFoundError:
+            print("BayesElim: NonFatal: No stopwords file found.")
+            return  # if no file found
+
+        line = f.readline()
+        while line != "":
+            self.stopwords.add(str(line.rstrip('\n')))
+            line = f.readline()
+
+    def train(self, train_list):
+        self.buildStopWords()
+        print(self.stopwords)
+
+        labels = []  # collect labels
         for inst in train_list:
+            if inst.getLabel() not in labels:
+                labels.append(inst.getLabel())
+
+        for inst in train_list:  # build map on labels
             for word in inst.getWordList():
-                if word not in self.wordmap:
-                    self.wordmap[word] = [inst.getLabel(), 1]
-                else:
-                    self.wordmap[word][0] += inst.getLabel()
-                    self.wordmap[word][1] += 1
-        for k in self.wordmap:
-            self.wordmap[k] = float(self.wordmap[k][0]) / self.wordmap[k][1]
+                if word not in self.stopwords:
+                    if word not in self.wordmap:  # if we need to add a word
+                        self.wordmap[word] = dict()
+                        for label in labels:
+                            self.wordmap[word][label] = 0
+
+                    self.wordmap[word][inst.getLabel()] += 1  # add label counter
+
+        for word in self.wordmap:  # find most common label by word
+            maxLabel = ""
+            currentMax = 0
+            for label in self.wordmap[word].keys():
+                count = self.wordmap[word][label]
+                if count > currentMax:
+                    maxLabel = label
+                    currentMax = count
+
+            self.wordmap[word] = maxLabel  # assign to each word its max label
+
+    def test(self, inst):
+        encounteredLabels = dict()
+        for word in inst.getWordList():
+            if word not in self.stopwords:
+                if word in self.wordmap:
+                    if word not in encounteredLabels:
+                        encounteredLabels[self.wordmap[word]] = 0
+                    encounteredLabels[self.wordmap[word]] += 1
+
+        maxLabel = ""
+        currentMax = 0
+        for label in encounteredLabels.keys():
+            count = encounteredLabels[label]
+            if count > currentMax:
+                maxLabel = label
+                currentMax = count
+
+        return maxLabel
 
     def buildConfusionMatrix(self, test_list):
         guesses = self.batchTest(test_list)
@@ -48,14 +99,4 @@ class ProximityModel:
         #print(orderedGuesses)
         return orderedGuesses
 
-    def test(self, inst):
-        guess = 0
-        denom = 0
-        for word in inst.getWordList():
-            if word in self.wordmap:  # if we've seen this word
-                guess += self.wordmap[word]
-                denom += 1
-        if denom == 0:
-            denom = 1
-        return round(float(guess) / denom)
 
