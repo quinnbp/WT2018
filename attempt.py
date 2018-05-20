@@ -24,6 +24,7 @@ class LSTM(object):
         max_word_length = self.hparams['max_word_length']
         self.X = tf.placeholder('float32', shape=[None, None, max_word_length, ALPHABET_SIZE], name='X')
         self.Y = tf.placeholder('float32', shape=[None, 2], name='Y')
+        self.prediction = None # <- Just added that
 
     def build(self,
               training=True,

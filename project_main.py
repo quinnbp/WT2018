@@ -9,118 +9,116 @@ import csv
 from sklearn.metrics import classification_report
 from instance import Instance
 from weighting import voting
-#from bayes import BayesModel
+from LSTM.run_loaded import runLSTM
 from bayes_elim import BayesEliminationModel
-from proximity import ProximityModel
-from attempt import LSTM
 from voting_classifier import VotingModel
 from confusion_matrix import ConfusionMatrix
 
 # TODO Run tests on multiple voting systems at once
 # TODO First run project_main.py, then tests.py
 
-def main(tperc, seed, fpaths, weighting_type):
-   """Parses files, trains the models, tests the models,
-   creates the weights, makes predictions and evaluates results"""
-
-   files = openFiles(fpaths)
-   instances = parseFiles(files)
-   train_set, test_set1, test_set2 = splitSets(tperc, seed, instances)
-
-   # Initialize all models
-   p = ProximityModel()
-   v = VotingModel()
-   # b = BayesModel()
-   r = LSTM()
-
-   print("Initialized all models!")
-
-   # Train all models
-
-   p.train(train_set)
-   v.train(train_set)
-   # b.train(train_set)
-   # r.train(train_set)
-
-   print("Trained all models!")
-
-   # Run models and store first set of results
-
-   p_pred = p.batchTest(test_set1)
-   v_pred = v.batchTest(test_set1)
-   # b_pred = b.batchTest(test_set1)
-   r_pred = r.predict_sentences(test_set1)
-
-   print("Predictions made for first test set!")
-
-   # Store first set of predictions
-
-   preds1 = [p_pred, v_pred, r_pred]#, b_pred, r_pred]
-   test_set1_labels = [i.getLabel() for i in test_set1]
-   store_preds(preds1, test_set1_labels, 1)
-
-   print("Stored predictions for first test set!")
-
-   # Get confusion matrices for first set of results
-
-   p_cm = ConfusionMatrix(test_set1_labels, p_pred, "Proximity")
-   v_cm = ConfusionMatrix(test_set1_labels, v_pred, "Voting")
-   # b_cm = ConfusionMatrix(test_set1_labels, b_pred, "Bayes")
-   r_cm = ConfusionMatrix(test_set1_labels, r_pred, "LSTM")
-
-   confusionMatrices = [p_cm, v_cm, r_cm]
-   # confusionMatices = [p_cm, v_cm, b_cm, r_cm]
-
-   # Save individual confusion matrices to files
-
-   for cm in confusionMatrices:
-       cm.store_cm()
-
-   print("Individual confusion matrices created and stored!")
-
-   # Second set of predictions
-
-   p_pred2 = p.batchTest(test_set2)
-   v_pred2 = v.batchTest(test_set2)
-   #b_pred2 = b.batchTest(test_set2)
-   r_pred2 = r.predict_sentences(test_set2)
-
-   print("Predictions made for second test set!")
-
-   # Store second set of predictions
-
-   preds2 = [p_pred2, v_pred2, r_pred2]  # , b_pred2, r_pred2]
-   test_set2_labels = [i.getLabel() for i in test_set2]
-   store_preds(preds2, test_set2_labels, 2)
-
-   print("Stored predictions for second test set!")
-
-   # Weight second set of results, using confusion matrices from first set
-
-   weightingInput = [
-       [confusionMatrices[0], p_pred2],
-       [confusionMatrices[1], v_pred2]
-       # [confusionMatrices[2] ,b_pred2],
-       [confusionMatrices[2], r_pred2]
-   ]
-
-   # Get the weighting results
-
-   guesses = voting(weightingInput, weighting_type)
-   print("Voting done!")
-   # print(guesses)
-
-   # Create confusion matrix for final model and store it in a file
-
-   final_cm = ConfusionMatrix(test_set2_labels, guesses, "Final_Model_" + weighting_type)
-   final_cm.store_cm()
-   print("Stored confusion matrix!")
-
-   # Store second set of tweets and guesses
-
-   test_set2_tweets = [t.getFullTweet() for t in test_set2]
-   store_new_labels(test_set2_tweets, guesses, test_set2_labels)
-   print("Stored new predictions!")
+# def main(tperc, seed, fpaths, weighting_type):
+#    """Parses files, trains the models, tests the models,
+#    creates the weights, makes predictions and evaluates results"""
+#
+#    files = openFiles(fpaths)
+#    instances = parseFiles(files)
+#    train_set, test_set1, test_set2 = splitSets(tperc, seed, instances)
+#
+#    # Initialize all models
+#    p = ProximityModel()
+#    v = VotingModel()
+#    # b = BayesModel()
+#    r = LSTM()
+#
+#    print("Initialized all models!")
+#
+#    # Train all models
+#
+#    p.train(train_set)
+#    v.train(train_set)
+#    # b.train(train_set)
+#    # r.train(train_set)
+#
+#    print("Trained all models!")
+#
+#    # Run models and store first set of results
+#
+#    p_pred = p.batchTest(test_set1)
+#    v_pred = v.batchTest(test_set1)
+#    # b_pred = b.batchTest(test_set1)
+#    r_pred = r.predict_sentences(test_set1)
+#
+#    print("Predictions made for first test set!")
+#
+#    # Store first set of predictions
+#
+#    preds1 = [p_pred, v_pred, r_pred]#, b_pred, r_pred]
+#    test_set1_labels = [i.getLabel() for i in test_set1]
+#    store_preds(preds1, test_set1_labels, 1)
+#
+#    print("Stored predictions for first test set!")
+#
+#    # Get confusion matrices for first set of results
+#
+#    p_cm = ConfusionMatrix(test_set1_labels, p_pred, "Proximity")
+#    v_cm = ConfusionMatrix(test_set1_labels, v_pred, "Voting")
+#    # b_cm = ConfusionMatrix(test_set1_labels, b_pred, "Bayes")
+#    r_cm = ConfusionMatrix(test_set1_labels, r_pred, "LSTM")
+#
+#    confusionMatrices = [p_cm, v_cm, r_cm]
+#    # confusionMatices = [p_cm, v_cm, b_cm, r_cm]
+#
+#    # Save individual confusion matrices to files
+#
+#    for cm in confusionMatrices:
+#        cm.store_cm()
+#
+#    print("Individual confusion matrices created and stored!")
+#
+#    # Second set of predictions
+#
+#    p_pred2 = p.batchTest(test_set2)
+#    v_pred2 = v.batchTest(test_set2)
+#    #b_pred2 = b.batchTest(test_set2)
+#    r_pred2 = r.predict_sentences(test_set2)
+#
+#    print("Predictions made for second test set!")
+#
+#    # Store second set of predictions
+#
+#    preds2 = [p_pred2, v_pred2, r_pred2]  # , b_pred2, r_pred2]
+#    test_set2_labels = [i.getLabel() for i in test_set2]
+#    store_preds(preds2, test_set2_labels, 2)
+#
+#    print("Stored predictions for second test set!")
+#
+#    # Weight second set of results, using confusion matrices from first set
+#
+#    weightingInput = [
+#        [confusionMatrices[0], p_pred2],
+#        [confusionMatrices[1], v_pred2]
+#        # [confusionMatrices[2] ,b_pred2],
+#        [confusionMatrices[2], r_pred2]
+#    ]
+#
+#    # Get the weighting results
+#
+#    guesses = voting(weightingInput, weighting_type)
+#    print("Voting done!")
+#    # print(guesses)
+#
+#    # Create confusion matrix for final model and store it in a file
+#
+#    final_cm = ConfusionMatrix(test_set2_labels, guesses, "Final_Model_" + weighting_type)
+#    final_cm.store_cm()
+#    print("Stored confusion matrix!")
+#
+#    # Store second set of tweets and guesses
+#
+#    test_set2_tweets = [t.getFullTweet() for t in test_set2]
+#    store_new_labels(test_set2_tweets, guesses, test_set2_labels)
+#    print("Stored new predictions!")
 
 
 def alternative_main(tperc, seed, fpaths):
@@ -135,17 +133,14 @@ def alternative_main(tperc, seed, fpaths):
    # Initialize all models
 
    b = BayesEliminationModel()
-   p = ProximityModel()
-   r = LSTM()
    v = VotingModel()
 
    print("Initialized all models!")
 
    # Train all models
+
    print("Training Bayes...")
    b.train(train_set)
-   print("Training Proximity...")
-   p.train(train_set)
    print("Training Voting...")
    v.train(train_set)
 
@@ -154,15 +149,14 @@ def alternative_main(tperc, seed, fpaths):
    # Run models and store first set of results
 
    b_pred = b.batchTest(test_set1)
-   p_pred = p.batchTest(test_set1)
-   r_pred = r.predict_sentences(test_set1)
+   r_pred = runLSTM(test_set1)
    v_pred = v.batchTest(test_set1)
 
    print("Predictions made for first test set!")
 
    # Store first set of predictions
 
-   preds1 = [b_pred, p_pred, r_pred, v_pred]
+   preds1 = [b_pred, r_pred, v_pred]
    test_set1_labels = [i.getLabel() for i in test_set1]
    store_preds(preds1, test_set1_labels, 1)
 
@@ -171,15 +165,14 @@ def alternative_main(tperc, seed, fpaths):
    # Run models and store second set of results
 
    b_pred2 = b.batchTest(test_set2)
-   p_pred2 = p.batchTest(test_set2)
-   r_pred2 = r.predict_sentences(test_set2)
+   r_pred2 = runLSTM(test_set2)
    v_pred2 = v.batchTest(test_set2)
 
    print("Predictions made for second test set!")
 
    # Store first set of predictions
 
-   preds2 = [b_pred2, p_pred2, r_pred2, v_pred2]
+   preds2 = [b_pred2, r_pred2, v_pred2]
    test_set2_labels = [i.getLabel() for i in test_set2]
    store_preds(preds2, test_set2_labels, 2)
 
@@ -262,19 +255,18 @@ def store_preds(preds, actual, num_test):
 
    num_test = str(num_test)
 
-   # Proximity, Voting, Bayes, LSTM
+   # Bayes, LSTM, Voting
    f1 = open("bayes_preds_" + num_test + ".txt", "w+b")
-   f2 = open("proximity_preds_" + num_test + ".txt", "w+b")
-   f3 = open("lstm_preds_" + num_test + ".txt", "w+b")
-   f4 = open("voting_preds_" + num_test + ".txt", "w+b")
-   f5 = open("actual_labels_" + num_test + ".txt", "w+b")
+   f2 = open("lstm_preds_" + num_test + ".txt", "w+b")
+   f3 = open("voting_preds_" + num_test + ".txt", "w+b")
+   f4 = open("actual_labels_" + num_test + ".txt", "w+b")
 
-   files = [f1, f2, f3, f4, f5]
+   files = [f1, f2, f3]
 
    for i in range(len(preds)):
        pickle.dump(preds[i], files[i])
 
-   pickle.dump(actual, f5)
+   pickle.dump(actual, f4)
 
 def load_preds(num_test):
    """Loads the predictions file and returns a list of prediction lists
@@ -283,21 +275,20 @@ def load_preds(num_test):
 
    num_test = str(num_test)
 
-   # Proximity, Voting, Bayes, LSTM
+   # Bayes, LSTM, Voting
    f1 = open("bayes_preds_" + num_test + ".txt", "rb")
-   f2 = open("proximity_preds_" + num_test + ".txt", "rb")
-   f3 = open("lstm_preds_" + num_test + ".txt", "rb")
-   f4 = open("voting_preds_" + num_test + ".txt", "rb")
-   f5 = open("actual_labels_" + num_test + ".txt", "rb")
+   f2 = open("lstm_preds_" + num_test + ".txt", "rb")
+   f3 = open("voting_preds_" + num_test + ".txt", "rb")
+   f4 = open("actual_labels_" + num_test + ".txt", "rb")
 
-   files = [f1, f2, f3, f4, f5]
+   files = [f1, f2, f3, f4]
    preds = []
 
    for i in range(len(files)-1):
        l = pickle.load(files[i])
        preds.append(l)
 
-   actual = pickle.load(f5)
+   actual = pickle.load(f4)
 
    return preds, actual
 
