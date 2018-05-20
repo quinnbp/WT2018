@@ -13,4 +13,4 @@ if __name__ == '__main__':
     network.build()
 
     if sentences is not None:
-        return network.predict_sentences(sentences)
+       network.predict_sentences(sentences)
