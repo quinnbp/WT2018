@@ -1,17 +1,17 @@
 from data_utils import *
 from ops import *
-from textReader import *
+from LSTM.textReader import *
 import tensorflow as tf
 from tensorflow.contrib import rnn
 import numpy as np
 import queue as Queue
 
-PATH = './'
+PATH = 'LSTM/'
 TRAIN_SET ='Datasets/All_Tweets_June2016_Dataset.csv'
 TEST_SET ='Datasets/labeled_data.csv'
 VALID_SET ='Datasets/labeled_data.csv'
-SAVE_PATH = 'lib_model/savedlstm'
-LOGGING_PATH = 'lib_model/savedlstm'
+SAVE_PATH = PATH + 'savedlstm'
+LOGGING_PATH = PATH + 'savedlstm'
 ALPHABET_SIZE = 70
 
 class LSTM(object):
@@ -286,7 +286,7 @@ class LSTM(object):
             print('Done! in predict in char')
 
             # Add placebo value '0,' at the beginning of the sentences to
-            # use the make_minibatch() method 
+            # use the make_minibatch() method
             sentences = ['0,' + s for s in sentences]
 
             #formerly opening test, but caused vector issue
@@ -296,7 +296,7 @@ class LSTM(object):
                 print("LOADING TO RAM")
                 reader.load_to_ram(BATCH_SIZE)
                 reader.data[:len(sentences)] = sentences
-                print("THESE ARE THE SENTENCES THAT WERE INPUT: ",sentences)
+                #print("THESE ARE THE SENTENCES THAT WERE INPUT: ",sentences)
                 batch_x, batch_y = reader.make_minibatch(reader.data)
                 print("ABOUT TO SOLVE FOR P")
                 p = sess.run([pred], feed_dict={self.X: batch_x, self.Y: batch_y})

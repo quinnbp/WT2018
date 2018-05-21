@@ -28,49 +28,49 @@ def main(tperc, seed, fpaths, weighting_type):
 
     # Initialize all models
 
-    b = BayesEliminationModel()
-    v = VotingModel()
+    #b = BayesEliminationModel()
+    #v = VotingModel()
 
     print("Initialized all models!")
 
     # Train all models
 
     print("Training Bayes...")
-    b.train(train_set)
+    #b.train(train_set)
     print("Training Voting...")
-    v.train(train_set)
+    #v.train(train_set)
 
     print("Trained all models!")
 
     # Run models and store first set of results
 
-    b_pred = b.batchTest(test_set1)
+    #b_pred = b.batchTest(test_set1)
     r_pred = runLSTM(test_set1)
-    v_pred = v.batchTest(test_set1)
-
+    #v_pred = v.batchTest(test_set1)
+    print(r_pred)
     print("Predictions made for first test set!")
 
     # Store first set of predictions
 
-    preds1 = [b_pred, r_pred, v_pred]
+    #preds1 = [b_pred, r_pred, v_pred]
     test_set1_labels = [i.getLabel() for i in test_set1]
-    store_preds(preds1, test_set1_labels, 1)
+    #store_preds(preds1, test_set1_labels, 1)
 
     print("Stored predictions for first test set!")
 
     # Run models and store second set of results
 
-    b_pred2 = b.batchTest(test_set2)
+    #b_pred2 = b.batchTest(test_set2)
     r_pred2 = runLSTM(test_set2)
-    v_pred2 = v.batchTest(test_set2)
+    #v_pred2 = v.batchTest(test_set2)
 
     print("Predictions made for second test set!")
 
     # Store second set of predictions
 
-    preds2 = [b_pred2, r_pred2, v_pred2]
+    #preds2 = [b_pred2, r_pred2, v_pred2]
     test_set2_labels = [i.getLabel() for i in test_set2]
-    store_preds(preds2, test_set2_labels, 2)
+    #store_preds(preds2, test_set2_labels, 2)
 
     print("Stored predictions for second test set!")
 
@@ -382,6 +382,7 @@ if __name__ == "__main__":
             print("Please give a correct weighting option. Choose from the following: "
                   "\nPrecision, CEN_Precision, CEN, Equal_Vote")
         else:
-            # main(tperc, seed, fpaths, weighting_type)
+            #main(tperc, seed, fpaths, weighting_type)
             alternative_main(tperc, seed, fpaths)
             # run_multiple_voting()
+

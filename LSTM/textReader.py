@@ -18,6 +18,7 @@ ALPHABET_SIZE = len(emb_alphabet)
 TRAIN_SET ='Datasets/All_Tweets_June2016_Dataset.csv'
 TEST_SET ='Datasets/labeled_data.csv'
 VALID_SET ='Datasets/labeled_data.csv'
+
 class TextReader(object):
     """ Util for Reading the Stanford CSV Files """
 
@@ -49,7 +50,7 @@ class TextReader(object):
         # Here, we remove any non-printable characters in a sentence (mostly
         # non-ASCII characters)
         printable = string.printable
-        encoded_sentence = filter(lambda x: x in printable, sentence)
+        encoded_sentence = str(filter(lambda x: x in printable, sentence))
         
         # word_tokenize() splits a sentence into an array where each element is
         # a word in the sentence, for example, 

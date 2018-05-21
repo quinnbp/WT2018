@@ -12,7 +12,7 @@ def runLSTM(sentences):
     network.build()
 
     #Get sentences from tweet instances
-    tweets = [t.getFullTweet for t in sentences]
+    tweets = [t.getFullTweet() for t in sentences]
     #tweets = [t.getCleanTweet for t in sentences]
 
     if sentences is not None:
