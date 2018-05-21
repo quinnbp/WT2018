@@ -382,7 +382,7 @@ if __name__ == "__main__":
             print("Please give a correct weighting option. Choose from the following: "
                   "\nPrecision, CEN_Precision, CEN, Equal_Vote")
         else:
-            #main(tperc, seed, fpaths, weighting_type)
-            alternative_main(tperc, seed, fpaths)
+            main(tperc, seed, fpaths, weighting_type)
+            #alternative_main(tperc, seed, fpaths)
             # run_multiple_voting()
 
