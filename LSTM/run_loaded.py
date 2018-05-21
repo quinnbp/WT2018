@@ -1,5 +1,5 @@
 #   TO RUN LOADED LSTM
-from lib_model.char_lstm import *
+from LSTM.lib_model.char_lstm import *
 
 def runLSTM(sentences):
 

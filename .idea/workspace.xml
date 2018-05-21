@@ -4,10 +4,14 @@
     <list default="true" id="65279333-d23e-4713-b03a-fd6c4e93a2d0" name="Default" comment="">
       <change type="DELETED" beforePath="$PROJECT_DIR$/Bayes_ConfusionMatrix.pdf" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/Proximity_ConfusionMatrix.pdf" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/LSTM/savedlstm.index" afterPath="$PROJECT_DIR$/LSTM/lib_model/savedlstm.index" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/LSTM/savedlstm.meta" afterPath="$PROJECT_DIR$/LSTM/lib_model/savedlstm.meta" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/LSTM/lib_model/char_lstm.py" afterPath="$PROJECT_DIR$/LSTM/lib_model/char_lstm.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/LSTM/main.py" afterPath="$PROJECT_DIR$/LSTM/main.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/LSTM/run_loaded.py" afterPath="$PROJECT_DIR$/LSTM/run_loaded.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/attempt.py" afterPath="$PROJECT_DIR$/attempt.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/project_main.py" afterPath="$PROJECT_DIR$/project_main.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests.py" afterPath="$PROJECT_DIR$/tests.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -18,11 +22,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="project_main.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="project_main.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/project_main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="196">
-              <caret line="313" column="0" lean-forward="false" selection-start-line="313" selection-start-column="0" selection-end-line="313" selection-end-column="0" />
+            <state relative-caret-position="-2565">
+              <caret line="190" column="0" lean-forward="true" selection-start-line="190" selection-start-column="0" selection-end-line="190" selection-end-column="0" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -30,24 +34,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="char_lstm.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="char_lstm.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/LSTM/lib_model/char_lstm.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="17" column="23" lean-forward="true" selection-start-line="17" selection-start-column="23" selection-end-line="17" selection-end-column="23" />
-              <folding>
-                <element signature="e#0#24#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="1283">
+              <caret line="284" column="42" lean-forward="false" selection-start-line="284" selection-start-column="42" selection-end-line="284" selection-end-column="42" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="instance.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/instance.py">
+      <file leaf-file-name="tests.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="18" lean-forward="false" selection-start-line="0" selection-start-column="18" selection-end-line="0" selection-end-column="18" />
-              <folding />
+            <state relative-caret-position="-281">
+              <caret line="118" column="0" lean-forward="true" selection-start-line="118" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#44#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -64,6 +68,12 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>run</find>
+      <find>ALPHABET</find>
+      <find>textreader</find>
+      <find>alphabet</find>
+      <find>load</find>
+      <find>PATH</find>
+      <find>predict_set</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -72,8 +82,11 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/project_main.py" />
         <option value="$PROJECT_DIR$/LSTM/run_loaded.py" />
+        <option value="$PROJECT_DIR$/tests.py" />
+        <option value="$PROJECT_DIR$/LSTM/main.py" />
+        <option value="$PROJECT_DIR$/project_main.py" />
+        <option value="$PROJECT_DIR$/LSTM/lib_model/char_lstm.py" />
       </list>
     </option>
   </component>
@@ -151,6 +164,14 @@
       <option name="presentableId" value="Default" />
       <updated>1526763335360</updated>
     </task>
+    <task id="LOCAL-00001" summary="Added instance unpacking">
+      <created>1526848345028</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1526848345029</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -179,6 +200,10 @@
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Added instance unpacking" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added instance unpacking" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -240,7 +265,7 @@
         <state relative-caret-position="217">
           <caret line="179" column="42" lean-forward="false" selection-start-line="179" selection-start-column="39" selection-end-line="179" selection-end-column="42" />
           <folding>
-            <element signature="e#0#24#0" expanded="true" />
+            <element signature="e#0#24#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -275,28 +300,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/LSTM/attempt.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="320">
-          <caret line="20" column="40" lean-forward="false" selection-start-line="20" selection-start-column="40" selection-end-line="20" selection-end-column="40" />
-          <folding>
-            <element signature="e#0#24#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/instance.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="18" lean-forward="false" selection-start-line="0" selection-start-column="18" selection-end-line="0" selection-end-column="18" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LSTM/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="20" lean-forward="true" selection-start-line="0" selection-start-column="20" selection-end-line="0" selection-end-column="20" />
           <folding />
         </state>
       </provider>
@@ -309,31 +316,63 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/LSTM/lib_model/char_lstm.py">
+    <entry file="file://$PROJECT_DIR$/LSTM/run_loaded.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="17" column="23" lean-forward="true" selection-start-line="17" selection-start-column="23" selection-end-line="17" selection-end-column="23" />
-          <folding>
-            <element signature="e#0#24#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="80">
+          <caret line="5" column="31" lean-forward="false" selection-start-line="5" selection-start-column="31" selection-end-line="5" selection-end-column="31" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/LSTM/run_loaded.py">
+    <entry file="file://$PROJECT_DIR$/LSTM/lib_model/ops.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="19" column="0" lean-forward="true" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+        <state relative-caret-position="160">
+          <caret line="10" column="69" lean-forward="false" selection-start-line="10" selection-start-column="69" selection-end-line="10" selection-end-column="69" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LSTM/attempt.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="32">
+          <caret line="2" column="21" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LSTM/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="14" column="0" lean-forward="true" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-281">
+          <caret line="118" column="0" lean-forward="true" selection-start-line="118" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#44#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/project_main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="313" column="0" lean-forward="false" selection-start-line="313" selection-start-column="0" selection-end-line="313" selection-end-column="0" />
+        <state relative-caret-position="-2565">
+          <caret line="190" column="0" lean-forward="true" selection-start-line="190" selection-start-column="0" selection-end-line="190" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LSTM/lib_model/char_lstm.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1283">
+          <caret line="284" column="42" lean-forward="false" selection-start-line="284" selection-start-column="42" selection-end-line="284" selection-end-column="42" />
+          <folding />
         </state>
       </provider>
     </entry>

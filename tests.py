@@ -129,13 +129,11 @@ def test_run_multiple_voting():
     preds2, actual2 = load_preds(2)
 
     # Create confusion matrices for each classifier
-    p_cm = ConfusionMatrix(actual1, preds1[0], "Proximity")
-    v_cm = ConfusionMatrix(actual1, preds1[1], "Voting")
-    b_cm = ConfusionMatrix(actual1, preds1[2], "Bayes")
-    #r_cm = ConfusionMatrix(actual1, preds1[2], "LSTM")
+    b_cm = ConfusionMatrix(actual1, preds1[0], "Bayes")
+    r_cm = ConfusionMatrix(actual1, preds1[1], "LSTM")
+    v_cm = ConfusionMatrix(actual1, preds1[2], "Voting")
 
-    confusionMatrices = [p_cm, v_cm, b_cm]
-    # confusionMatices = [p_cm, v_cm, b_cm, r_cm]
+    confusionMatrices = [b_cm, r_cm, v_cm]
 
     # Save individual confusion matrices to files
     for cm in confusionMatrices:
@@ -147,7 +145,6 @@ def test_run_multiple_voting():
     weightingInput = [
         [confusionMatrices[0], preds2[0]],
         [confusionMatrices[1], preds2[1]],
-        # [confusionMatrices[2] ,preds2[2]],
         [confusionMatrices[2], preds2[2]]
     ]
 

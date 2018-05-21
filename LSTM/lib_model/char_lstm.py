@@ -1,16 +1,18 @@
 from data_utils import *
 from ops import *
+from textReader import *
 import tensorflow as tf
 from tensorflow.contrib import rnn
 import numpy as np
-import Queue
+import queue as Queue
 
 PATH = './'
 TRAIN_SET ='Datasets/All_Tweets_June2016_Dataset.csv'
 TEST_SET ='Datasets/labeled_data.csv'
 VALID_SET ='Datasets/labeled_data.csv'
-SAVE_PATH = PATH + 'savedlstm'
-LOGGING_PATH = PATH + 'savedlstm'
+SAVE_PATH = 'lib_model/savedlstm'
+LOGGING_PATH = 'lib_model/savedlstm'
+ALPHABET_SIZE = 70
 
 class LSTM(object):
     """ Character-Level LSTM Implementation """
