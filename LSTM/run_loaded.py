@@ -14,9 +14,13 @@ def runLSTM(sentences):
     network = LSTM()
     network.build()
     preds =[]
+    feeder = []
+    i =0
     if sentences is not None:
         for sentence in sentences:
-            feeder = [sentence]
-            preds.append(network.predict_sentences(feeder))
+            feeder.append(sentence)
+            if i % 1000 == 0:
+                preds.append(network.predict_sentences(feeder))
+            i++;
     return preds
 
