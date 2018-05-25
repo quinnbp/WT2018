@@ -21,6 +21,7 @@ def runLSTM(sentences):
             feeder.append(sentence)
             if i % 1000 == 0:
                 preds.append(network.predict_sentences(feeder))
-            i++;
+                feeder = []
+            i+=1;
     return preds
 
