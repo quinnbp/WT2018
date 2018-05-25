@@ -1,3 +1,5 @@
+import random
+
 def voting(weighting_input, weighting_opt):
     """Creates label:weight dictionary, voting_list and CEN dictionary for each classifier
     and calls voting methods according to selected option"""
@@ -28,6 +30,11 @@ def voting(weighting_input, weighting_opt):
         elif weighting_opt == "CEN_Precision":
             for weight in conf_matrix.get_precision():  # precision = [0.7, 0.2, 0.1]
                 weight_dict[label] = weight * (1 - CEN_scores[num_cls])
+                label += 1
+
+        elif weighting_opt == "CEN_Add_Precision":
+            for weight in conf_matrix.get_precision():  # precision = [0.7, 0.2, 0.1]
+                weight_dict[label] = weight + (1 - CEN_scores[num_cls])
                 label += 1
 
         elif weighting_opt == "CEN":
@@ -116,17 +123,26 @@ def final_vote(n_results, v_list):
 
 
         f_votes_list.append(f_vote)
-        final_vote = 0
+        final_vote = -1
         score = 0
 
         #print(f_vote)
         #print(type(f_vote[0]))
 
-        # Get the label that gets the highest aggregate precision score
+        # Get the label that gets the highest aggregate score
         for l in f_vote.keys():
+
+            # If there is a clear winner
             if f_vote[l] > score:
                 score = f_vote[l]
                 final_vote = l
+
+            # Random untie
+            elif f_vote[l] == score and final_vote != -1:
+                num = random.choice([l, final_vote])
+                score = f_vote[num]
+                final_vote = num
+
 
         final_votes.append(final_vote)
 

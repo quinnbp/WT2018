@@ -44,6 +44,7 @@ def main(tperc, seed, fpaths, weighting_type):
 
     # Run models and store first set of results
 
+    print("We have a total of", len(test_set1), len(test_set2), "tweets")
     #b_pred = b.batchTest(test_set1)
     r_pred = runLSTM(test_set1)
     #v_pred = v.batchTest(test_set1)
@@ -128,14 +129,14 @@ def alternative_main(tperc, seed, fpaths):
     # Run models and store first set of results
 
     b_pred = b.batchTest(test_set1)
-    r_pred = runLSTM(test_set1)
+    #r_pred = runLSTM(test_set1)
     v_pred = v.batchTest(test_set1)
 
     print("Predictions made for first test set!")
 
     # Store first set of predictions
 
-    preds1 = [b_pred, r_pred, v_pred]
+    preds1 = [b_pred, v_pred]
     test_set1_labels = [i.getLabel() for i in test_set1]
     store_preds(preds1, test_set1_labels, 1)
 
@@ -144,14 +145,14 @@ def alternative_main(tperc, seed, fpaths):
     # Run models and store second set of results
 
     b_pred2 = b.batchTest(test_set2)
-    r_pred2 = runLSTM(test_set2)
+    #r_pred2 = runLSTM(test_set2)
     v_pred2 = v.batchTest(test_set2)
 
     print("Predictions made for second test set!")
 
     # Store second set of predictions
 
-    preds2 = [b_pred2, r_pred2, v_pred2]
+    preds2 = [b_pred2, v_pred2]
     test_set2_labels = [i.getLabel() for i in test_set2]
     store_preds(preds2, test_set2_labels, 2)
 
@@ -223,16 +224,16 @@ def store_preds(preds, actual, num_test):
 
     # Bayes, LSTM, Voting
     f1 = open("bayes_preds_" + num_test + ".txt", "w+b")
-    f2 = open("lstm_preds_" + num_test + ".txt", "w+b")
-    f3 = open("voting_preds_" + num_test + ".txt", "w+b")
-    f4 = open("actual_labels_" + num_test + ".txt", "w+b")
+    #f2 = open("lstm_preds_" + num_test + ".txt", "w+b")
+    f2 = open("voting_preds_" + num_test + ".txt", "w+b")
+    f3 = open("actual_labels_" + num_test + ".txt", "w+b")
 
-    files = [f1, f2, f3]
+    files = [f1, f2]
 
     for i in range(len(preds)):
         pickle.dump(preds[i], files[i])
 
-    pickle.dump(actual, f4)
+    pickle.dump(actual, f3)
 
 
 def load_preds(num_test):
@@ -244,18 +245,18 @@ def load_preds(num_test):
 
     # Bayes, LSTM, Voting
     f1 = open("bayes_preds_" + num_test + ".txt", "rb")
-    f2 = open("lstm_preds_" + num_test + ".txt", "rb")
-    f3 = open("voting_preds_" + num_test + ".txt", "rb")
-    f4 = open("actual_labels_" + num_test + ".txt", "rb")
+    #f2 = open("lstm_preds_" + num_test + ".txt", "rb")
+    f2 = open("voting_preds_" + num_test + ".txt", "rb")
+    f3 = open("actual_labels_" + num_test + ".txt", "rb")
 
-    files = [f1, f2, f3, f4]
+    files = [f1, f2, f3]
     preds = []
 
     for i in range(len(files) - 1):
         l = pickle.load(files[i])
         preds.append(l)
 
-    actual = pickle.load(f4)
+    actual = pickle.load(f3)
 
     return preds, actual
 
@@ -382,7 +383,7 @@ if __name__ == "__main__":
             print("Please give a correct weighting option. Choose from the following: "
                   "\nPrecision, CEN_Precision, CEN, Equal_Vote")
         else:
-            main(tperc, seed, fpaths, weighting_type)
-            #alternative_main(tperc, seed, fpaths)
+            #main(tperc, seed, fpaths, weighting_type)
+            alternative_main(tperc, seed, fpaths)
             # run_multiple_voting()
 

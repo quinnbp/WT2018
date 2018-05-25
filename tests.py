@@ -130,10 +130,10 @@ def test_run_multiple_voting():
 
     # Create confusion matrices for each classifier
     b_cm = ConfusionMatrix(actual1, preds1[0], "Bayes")
-    r_cm = ConfusionMatrix(actual1, preds1[1], "LSTM")
-    v_cm = ConfusionMatrix(actual1, preds1[2], "Voting")
+    #r_cm = ConfusionMatrix(actual1, preds1[1], "LSTM")
+    v_cm = ConfusionMatrix(actual1, preds1[1], "Voting")
 
-    confusionMatrices = [b_cm, r_cm, v_cm]
+    confusionMatrices = [b_cm, v_cm]
 
     # Save individual confusion matrices to files
     for cm in confusionMatrices:
@@ -145,24 +145,40 @@ def test_run_multiple_voting():
     weightingInput = [
         [confusionMatrices[0], preds2[0]],
         [confusionMatrices[1], preds2[1]],
-        [confusionMatrices[2], preds2[2]]
     ]
 
     # Get the weighted voting results
     votes_p = voting(weightingInput, "Precision")
     votes_CEN_p = voting(weightingInput, "CEN_Precision")
+    votes_CEN_add_p = voting(weightingInput, "CEN_Add_Precision")
     votes_CEN = voting(weightingInput, "CEN")
     votes_eq = voting(weightingInput, "Equal_Vote")
 
     # Check metrics
+    print("BAYES ELIM CR!")
+    print(classification_report(actual2, preds2[0]))
+    print()
+    print("VOTING CR!")
+    print(classification_report(actual2, preds2[1]))
+    print("PRECISION CR!")
     print(classification_report(actual2, votes_p))
+    print()
+    print("CEN_PRECISION CR!")
     print(classification_report(actual2, votes_CEN_p))
+    print()
+    print("CEN_ADD_PRECISION CR!")
+    print(classification_report(actual2, votes_CEN_add_p))
+    print()
+    print("CEN CR!")
     print(classification_report(actual2, votes_CEN))
+    print()
+    print("Equal vote!")
     print(classification_report(actual2, votes_eq))
 
     # Create final confusion matrices depending on votes
     p_cm = ConfusionMatrix(actual2, votes_p, "Precision")
     p_CEN_cm = ConfusionMatrix(actual2, votes_CEN_p, "CEN_Precision")
+    p_add_CEN_cm = ConfusionMatrix(actual2, votes_CEN_add_p, "CEN_Add_Precision")
     CEN_cm = ConfusionMatrix(actual2, votes_CEN, "CEN")
     eq_cm = ConfusionMatrix(actual2, votes_eq, "Equal")
 
@@ -170,6 +186,7 @@ def test_run_multiple_voting():
 
     p_cm.store_cm()
     p_CEN_cm.store_cm()
+    p_add_CEN_cm.store_cm()
     CEN_cm.store_cm()
     eq_cm.store_cm()
 

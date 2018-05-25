@@ -288,7 +288,6 @@ class LSTM(object):
             # Add placebo value '0,' at the beginning of the sentences to
             # use the make_minibatch() method
             sentences = ['0,' + s for s in sentences]
-
             #formerly opening test, but caused vector issue
             with open(TRAIN_SET, 'r') as f:
                 print("OPENING THE TRAIN SET")
@@ -298,6 +297,7 @@ class LSTM(object):
                 reader.data[:len(sentences)] = sentences
                 #print("THESE ARE THE SENTENCES THAT WERE INPUT: ",sentences)
                 batch_x, batch_y = reader.make_minibatch(reader.data)
+                print(batch_x, batch_y)
                 print("ABOUT TO SOLVE FOR P")
                 p = sess.run([pred], feed_dict={self.X: batch_x, self.Y: batch_y})
                 for i, s in enumerate(sentences):
@@ -308,6 +308,7 @@ class LSTM(object):
                         english_pred = 'offensive'
                     if max(p[0][i]) == 2:
                         english_pred = 'hate'
+                    print('Prediction is', p[0][i])
                     print('Sentence: %s , yielded results : %d/%d, prediction: %s' %
                           (s, p[0][i][0], p[0][i][1], english_pred))
                     predlist.append(int(p[0][i][0]))
