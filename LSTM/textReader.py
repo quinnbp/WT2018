@@ -15,10 +15,9 @@ DICT = {ch: ix for ix, ch in enumerate(emb_alphabet)}
 
 # The size of our alphabet (~70)
 ALPHABET_SIZE = len(emb_alphabet)
-TRAIN_SET ='Datasets/All_Tweets_June2016_Dataset.csv'
-TEST_SET ='Datasets/labeled_data.csv'
+TRAIN_SET ='Datasets/labeled_data.csv'#'Datasets/All_Tweets_June2016_Dataset.csv'
+TEST_SET = 'Datasets/All_Tweets_June2016_Dataset.csv'#'Datasets/labeled_data.csv'
 VALID_SET ='Datasets/labeled_data.csv'
-
 class TextReader(object):
     """ Util for Reading the Stanford CSV Files """
 
@@ -26,13 +25,10 @@ class TextReader(object):
         # TextReader() takes a CSV file as input that it will read
         # through a buffer
         
-        # we can also feed TextReader() our own sentences, therefore
-        # sometimes it will not need a file
         if file != None:
             self.file = file
             
-        # The maximum number of character in a word, default is 16 (we
-        # will get to this later)
+        # The maximum number of character in a word
         self.max_word_length = max_word_length
 
     def encode_one_hot(self, sentence):
@@ -41,21 +37,12 @@ class TextReader(object):
 
         max_word_length = self.max_word_length
         sent = []
-        
-        # We need to keep track of the maximum length of the sentence in a minibatch
-        # so that we can pad them with zeros, this is why we return the length of every
-        # sentences after they are converted to one-hot tensors
+
         SENT_LENGTH = 0
-        
-        # Here, we remove any non-printable characters in a sentence (mostly
-        # non-ASCII characters)
+       
         printable = string.printable
-        encoded_sentence = str(filter(lambda x: x in printable, sentence))
-        
-        # word_tokenize() splits a sentence into an array where each element is
-        # a word in the sentence, for example, 
-        # "My name is Charles" => ["My", "name", "is", Charles"]
-        # Unidecode convert characters to utf-8
+        encoded_sentence = filter(lambda x: x in printable, sentence)
+      
         for word in word_tokenize(unidecode(encoded_sentence)):
             
             # Encode one word as a matrix of shape [max_word_length x ALPHABET_SIZE]
@@ -77,6 +64,7 @@ class TextReader(object):
             SENT_LENGTH += 1
 
         return np.array(sent), SENT_LENGTH
+
     def make_minibatch(self, sentences):
         # Create a minibatch of sentences and convert sentiment
         # to a one-hot vector, also takes care of padding
@@ -88,7 +76,6 @@ class TextReader(object):
         
         for sentence in sentences:
             # Append the one-hot encoding of the sentiment to the minibatch of Y
-            # 0: Negative 1: Positive
             minibatch_y.append(np.array([0, 1]) if sentence[:1] == '0' else np.array([1, 0]))
 
             # One-hot encoding of the sentence
@@ -102,11 +89,9 @@ class TextReader(object):
             minibatch_x.append(one_hot)
 
 
-        # data is a np.array of shape ('b', 's', 'w', 'e') we want to
-        # pad it with np.zeros of shape ('e',) to get 
-        # ('b', 'SENTENCE_MAX_LENGTH', 'WORD_MAX_LENGTH', 'e')
+        
         def numpy_fillna(data):
-            """ This is a very useful function that fill the holes in our tensor """
+            """ Fill the holes in our tensor """
             
             # Get lengths of each row of data
             lens = np.array([len(i) for i in data])
@@ -118,7 +103,7 @@ class TextReader(object):
             out = np.zeros(shape=(mask.shape + (max_word_length, ALPHABET_SIZE)),
                            dtype='float32')
 
-            out[mask] = np.concatenate(data)
+            #out[mask] = np.concatenate(data)
             return out
 
         # Padding...
@@ -128,8 +113,7 @@ class TextReader(object):
 
     def load_to_ram(self, batch_size):
         """ Load n Rows from File f to Ram """
-        # Returns True if there are still lines in the buffer, 
-        # otherwise returns false - the epoch is over
+        # Returns True if there are still lines in the buffer
         
         self.data = []
         n_rows = batch_size
@@ -144,16 +128,11 @@ class TextReader(object):
     def iterate_minibatch(self, batch_size, dataset=TRAIN_SET):
         """ Returns Next Batch """
         
-        # I realize this could be more 
-        if dataset == TRAIN_SET:
-            n_samples = 1600000 * 0.95
-        elif dataset == VALID_SET:
-            n_samples = 1600000 * 0.05
-        elif dataset == TEST_SET:
-            n_samples = 498
+        
+        n_samples = 498
         
         # Number of batches / number of iterations per epoch
-        n_batch = int(n_samples // batch_size)
+        n_batch = 6#int(n_samples // batch_size)
         
         # Creates a minibatch, loads it to RAM and feed it to the network
         # until the buffer is empty
