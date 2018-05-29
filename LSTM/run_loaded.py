@@ -1,4 +1,6 @@
-from LSTM.lib_model.char_lstm import *
+from lib_model.char_lstm import *
+from sklearn.model_selection import train_test_split
+import pandas as pd
 
 #   TO RUN LOADED LSTM
 def runLSTM(sentences):
@@ -13,8 +15,6 @@ def runLSTM(sentences):
     feeder = []
     i =0
 
-    sentences = [t.getFullTweet() for t in sentences]
-
     if sentences is not None:
         for sentence in sentences:
             feeder.append(sentence)
@@ -26,3 +26,20 @@ def runLSTM(sentences):
     return network.predlist
 
 
+def process_data(fname):
+
+    f = open(fname, 'r')
+
+    # Read inputs using pandas
+    df = pd.read_csv(f)
+
+    raw_tweets = df.tweet.tolist()
+
+    X, y = train_test_split(raw_tweets, test_size=0.2)
+
+    return y
+
+if __name__ == "__main__":
+    name = "./LSTM/Datasets/labeled_data.csv"
+    test = process_data(name)
+    runLSTM(test)

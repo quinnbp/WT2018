@@ -1,5 +1,5 @@
-from LSTM.lib_model.data_utils import *
-from LSTM.lib_model.ops import *
+from lib_model.data_utils import *
+from lib_model.ops import *
 import tensorflow as tf
 import random
 from tensorflow.contrib import rnn
