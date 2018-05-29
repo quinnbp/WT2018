@@ -1,15 +1,15 @@
-from data_utils import *
-from ops import *
+from LSTM.lib_model.data_utils import *
+from LSTM.lib_model.ops import *
 import tensorflow as tf
 import random
 from tensorflow.contrib import rnn
 import numpy as np
-import Queue
+import queue as Queue
 
 PATH = './'
-TRAIN_SET ='Datasets/labeled_data.csv'#'Datasets/All_Tweets_June2016_Dataset.csv'
-TEST_SET ='Datasets/All_Tweets_June2016_Dataset.csv'#'Datasets/labeled_data.csv'
-VALID_SET ='Datasets/labeled_data.csv'
+TRAIN_SET ='LSTM/Datasets/labeled_data.csv'#'Datasets/All_Tweets_June2016_Dataset.csv'
+TEST_SET ='LSTM/Datasets/labeled_data.csv'#'Datasets/labeled_data.csv'
+VALID_SET ='LSTM/Datasets/labeled_data.csv'
 SAVE_PATH = PATH + 'savedlstm'
 LOGGING_PATH = PATH + 'savedlstm'
 

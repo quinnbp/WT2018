@@ -12,15 +12,12 @@ import sys
 import string
 import os
 
-reload(sys)
-sys.setdefaultencoding("utf8")
-
 printable = string.printable
 
 # PATH needs to be changed accordingly
-PATH = '/home/Desktop/WT2018-master-2/'
+PATH = 'LSTM/'
 TRAIN_SET = PATH +'Datasets/labeled_data.csv'#'Datasets/All_Tweets_June2016_Dataset.csv'
-TEST_SET = PATH + 'Datasets/All_Tweets_June2016_Dataset.csv'#'Datasets/labeled_data.csv'
+TEST_SET = PATH + 'Datasets/labeled_data.csv'#'Datasets/labeled_data.csv'
 VALID_PERC = 0.05
 
 # TODO: Add non-Ascii characters
@@ -66,10 +63,10 @@ class TextReader(object):
         max_word_length = self.max_word_length
         sent = []
         SENT_LENGTH = 0
-        encoded_sentence = filter(lambda x: x in (printable), sentence)
+        encoded_sentence = "".join(filter(lambda x: x in (printable), sentence))
 
         print(encoded_sentence)
-        for word in word_tokenize(encoded_sentence.decode('utf-8', 'ignore').encode('utf-8')):
+        for word in word_tokenize(encoded_sentence):
 
             word_encoding = np.zeros(shape=(max_word_length, ALPHABET_SIZE))
 

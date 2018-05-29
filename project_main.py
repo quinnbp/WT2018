@@ -6,12 +6,12 @@ import pandas as pd
 import random
 import sys
 import csv
-from sklearn.metrics import classification_report
+#from sklearn.metrics import classification_report
 from instance import Instance
-from weighting import voting
+#from weighting import voting
 from LSTM.run_loaded import runLSTM
-from bayes_elim import BayesEliminationModel
-from voting_classifier import VotingModel
+#from bayes_elim import BayesEliminationModel
+#from voting_classifier import VotingModel
 from confusion_matrix import ConfusionMatrix
 
 
@@ -101,108 +101,108 @@ def main(tperc, seed, fpaths, weighting_type):
     print("Stored new predictions!")
 
 
-def alternative_main(tperc, seed, fpaths):
-    """COPY OF MAIN FUNCTION - EXCEPT ONLY USED TO STORE PREDICTIONS FOR BOTH TEST SETS
-        Parses files, trains the models, tests the models,
-        creates the weights, makes predictions"""
-
-    files = openFiles(fpaths)
-    instances = parseFiles(files)
-    train_set, test_set1, test_set2 = splitSets(tperc, seed, instances)
-
-    # Initialize all models
-
-    b = BayesEliminationModel()
-    v = VotingModel()
-
-    print("Initialized all models!")
-
-    # Train all models
-
-    print("Training Bayes...")
-    b.train(train_set)
-    print("Training Voting...")
-    v.train(train_set)
-
-    print("Trained all models!")
-
-    # Run models and store first set of results
-
-    b_pred = b.batchTest(test_set1)
-    #r_pred = runLSTM(test_set1)
-    v_pred = v.batchTest(test_set1)
-
-    print("Predictions made for first test set!")
-
-    # Store first set of predictions
-
-    preds1 = [b_pred, v_pred]
-    test_set1_labels = [i.getLabel() for i in test_set1]
-    store_preds(preds1, test_set1_labels, 1)
-
-    print("Stored predictions for first test set!")
-
-    # Run models and store second set of results
-
-    b_pred2 = b.batchTest(test_set2)
-    #r_pred2 = runLSTM(test_set2)
-    v_pred2 = v.batchTest(test_set2)
-
-    print("Predictions made for second test set!")
-
-    # Store second set of predictions
-
-    preds2 = [b_pred2, v_pred2]
-    test_set2_labels = [i.getLabel() for i in test_set2]
-    store_preds(preds2, test_set2_labels, 2)
-
-    print("Stored predictions for second test set!")
-
-
-def run_multiple_voting():
-    """Run tests on multiple weighting systems given stored predictions of the classifiers in main()
-        To be used in conjunction with alternative_main to determine which weighting method performs better
-    """
-
-    # Load predictions from all classifiers and actual labels for test_set_1
-    preds1, actual1 = load_preds(1)
-
-    # Load predictions from all classifiers and actual labels for test_set_2
-    preds2, actual2 = load_preds(2)
-
-    # Create confusion matrices for each classifier
-    b_cm = ConfusionMatrix(actual1, preds1[0], "Bayes")
-    r_cm = ConfusionMatrix(actual1, preds1[1], "LSTM")
-    v_cm = ConfusionMatrix(actual1, preds1[2], "Voting")
-
-    confusionMatrices = [b_cm, r_cm, v_cm]
-
-    # Save individual confusion matrices to files
-    for cm in confusionMatrices:
-        cm.store_cm()
-
-    print("Individual confusion matrices created and stored!")
-
-    # Weight second set of results, using confusion matrices from first set
-    weightingInput = [
-        [confusionMatrices[0], preds2[0]],
-        [confusionMatrices[1], preds2[1]],
-        [confusionMatrices[2], preds2[2]]
-    ]
-
-    # Get the weighted voting results
-    votes_p = voting(weightingInput, "Precision")
-    votes_CEN_p = voting(weightingInput, "CEN_Precision")
-    votes_CEN = voting(weightingInput, "CEN")
-    votes_eq = voting(weightingInput, "Equal_Vote")
-
-    # Check metrics
-    print(classification_report(actual2, votes_p))
-    print(classification_report(actual2, votes_CEN_p))
-    print(classification_report(actual2, votes_CEN))
-    print(classification_report(actual2, votes_eq))
-
-    return votes_p, votes_CEN_p, votes_CEN, votes_eq
+# def alternative_main(tperc, seed, fpaths):
+#     """COPY OF MAIN FUNCTION - EXCEPT ONLY USED TO STORE PREDICTIONS FOR BOTH TEST SETS
+#         Parses files, trains the models, tests the models,
+#         creates the weights, makes predictions"""
+#
+#     files = openFiles(fpaths)
+#     instances = parseFiles(files)
+#     train_set, test_set1, test_set2 = splitSets(tperc, seed, instances)
+#
+#     # Initialize all models
+#
+#     b = BayesEliminationModel()
+#     v = VotingModel()
+#
+#     print("Initialized all models!")
+#
+#     # Train all models
+#
+#     print("Training Bayes...")
+#     b.train(train_set)
+#     print("Training Voting...")
+#     v.train(train_set)
+#
+#     print("Trained all models!")
+#
+#     # Run models and store first set of results
+#
+#     b_pred = b.batchTest(test_set1)
+#     #r_pred = runLSTM(test_set1)
+#     v_pred = v.batchTest(test_set1)
+#
+#     print("Predictions made for first test set!")
+#
+#     # Store first set of predictions
+#
+#     preds1 = [b_pred, v_pred]
+#     test_set1_labels = [i.getLabel() for i in test_set1]
+#     store_preds(preds1, test_set1_labels, 1)
+#
+#     print("Stored predictions for first test set!")
+#
+#     # Run models and store second set of results
+#
+#     b_pred2 = b.batchTest(test_set2)
+#     #r_pred2 = runLSTM(test_set2)
+#     v_pred2 = v.batchTest(test_set2)
+#
+#     print("Predictions made for second test set!")
+#
+#     # Store second set of predictions
+#
+#     preds2 = [b_pred2, v_pred2]
+#     test_set2_labels = [i.getLabel() for i in test_set2]
+#     store_preds(preds2, test_set2_labels, 2)
+#
+#     print("Stored predictions for second test set!")
+#
+#
+# def run_multiple_voting():
+#     """Run tests on multiple weighting systems given stored predictions of the classifiers in main()
+#         To be used in conjunction with alternative_main to determine which weighting method performs better
+#     """
+#
+#     # Load predictions from all classifiers and actual labels for test_set_1
+#     preds1, actual1 = load_preds(1)
+#
+#     # Load predictions from all classifiers and actual labels for test_set_2
+#     preds2, actual2 = load_preds(2)
+#
+#     # Create confusion matrices for each classifier
+#     b_cm = ConfusionMatrix(actual1, preds1[0], "Bayes")
+#     r_cm = ConfusionMatrix(actual1, preds1[1], "LSTM")
+#     v_cm = ConfusionMatrix(actual1, preds1[2], "Voting")
+#
+#     confusionMatrices = [b_cm, r_cm, v_cm]
+#
+#     # Save individual confusion matrices to files
+#     for cm in confusionMatrices:
+#         cm.store_cm()
+#
+#     print("Individual confusion matrices created and stored!")
+#
+#     # Weight second set of results, using confusion matrices from first set
+#     weightingInput = [
+#         [confusionMatrices[0], preds2[0]],
+#         [confusionMatrices[1], preds2[1]],
+#         [confusionMatrices[2], preds2[2]]
+#     ]
+#
+#     # Get the weighted voting results
+#     votes_p = voting(weightingInput, "Precision")
+#     votes_CEN_p = voting(weightingInput, "CEN_Precision")
+#     votes_CEN = voting(weightingInput, "CEN")
+#     votes_eq = voting(weightingInput, "Equal_Vote")
+#
+#     # Check metrics
+#     print(classification_report(actual2, votes_p))
+#     print(classification_report(actual2, votes_CEN_p))
+#     print(classification_report(actual2, votes_CEN))
+#     print(classification_report(actual2, votes_eq))
+#
+#     return votes_p, votes_CEN_p, votes_CEN, votes_eq
 
 
 def store_new_labels(t2tweets, guesses, labels):
@@ -383,7 +383,7 @@ if __name__ == "__main__":
             print("Please give a correct weighting option. Choose from the following: "
                   "\nPrecision, CEN_Precision, CEN, Equal_Vote")
         else:
-            #main(tperc, seed, fpaths, weighting_type)
-            alternative_main(tperc, seed, fpaths)
+            main(tperc, seed, fpaths, weighting_type)
+            #alternative_main(tperc, seed, fpaths)
             # run_multiple_voting()
 
