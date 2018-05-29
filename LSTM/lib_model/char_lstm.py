@@ -308,15 +308,16 @@ class LSTM(object):
                 print("ABOUT TO SOLVE FOR P")
                 p = sess.run([pred], feed_dict={self.X: batch_x, self.Y: batch_y})
                 for i, s in enumerate(sentences):
+                    print(p)
                     english_pred = "prediction!"
                     if max(p[0][i]) == 0:
                         english_pred = 0
-                    if max(p[0][i]) == 1:
+                    elif max(p[0][i]) == 1:
                         english_pred = 1
-                    if max(p[0][i]) == 2:
+                    elif max(p[0][i]) == 2:
                         english_pred = 2
                     else:
-                        print (max(p[0][i]))
+                        #print("Got to the else clause", max(p[0][i]))
                         english_pred = random.randint(0,2)
                     self.predlist.append(english_pred)
         
