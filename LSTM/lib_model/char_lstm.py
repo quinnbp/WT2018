@@ -1,18 +1,17 @@
 from data_utils import *
 from ops import *
-from LSTM.textReader import *
 import tensorflow as tf
+import random
 from tensorflow.contrib import rnn
 import numpy as np
-import queue as Queue
+import Queue
 
-PATH = 'LSTM/'
-TRAIN_SET ='Datasets/All_Tweets_June2016_Dataset.csv'
-TEST_SET ='Datasets/labeled_data.csv'
+PATH = './'
+TRAIN_SET ='Datasets/labeled_data.csv'#'Datasets/All_Tweets_June2016_Dataset.csv'
+TEST_SET ='Datasets/All_Tweets_June2016_Dataset.csv'#'Datasets/labeled_data.csv'
 VALID_SET ='Datasets/labeled_data.csv'
 SAVE_PATH = PATH + 'savedlstm'
 LOGGING_PATH = PATH + 'savedlstm'
-ALPHABET_SIZE = 70
 
 class LSTM(object):
     """ Character-Level LSTM Implementation """
@@ -23,6 +22,7 @@ class LSTM(object):
         max_word_length = self.hparams['max_word_length']
         self.X = tf.placeholder('float32', shape=[None, None, max_word_length, ALPHABET_SIZE], name='X')
         self.Y = tf.placeholder('float32', shape=[None, 2], name='Y')
+        self.predlist = []
 
     def build(self,
               training=True,
@@ -269,9 +269,16 @@ class LSTM(object):
 
     def predict_sentences(self, sentences):
         '''
-        Analyze Sentences
+        Analyze Some Sentences
 
         :sentences: list of sentences
+        e.g.: sentences = ['this is veeeryyy bad!!', 'I don\'t think he will be happy abt this',
+                            'YOU\'re a fool!', 'I\'m sooo happY!!!']
+
+        Sentence: "this is veeeryyy bad!!" , yielded results (pos/neg): 0.04511/0.95489, prediction: neg
+        Sentence: "I dont think he will be happy abt this" , yielded results (pos/neg): 0.05929/0.94071, prediction: neg
+        Sentence: "YOUre such an incompetent fool!" , yielded results (pos/neg): 0.48503/0.51497, prediction: neg ***
+        Sentence: "Im sooo happY!!!" , yielded results (pos/neg): 0.97455/0.02545, prediction: pos
 
         '''
         BATCH_SIZE = self.hparams['BATCH_SIZE']
@@ -286,8 +293,9 @@ class LSTM(object):
             print('Done! in predict in char')
 
             # Add placebo value '0,' at the beginning of the sentences to
-            # use the make_minibatch() method
+            # use the make_minibatch() method 
             sentences = ['0,' + s for s in sentences]
+
             #formerly opening test, but caused vector issue
             with open(TRAIN_SET, 'r') as f:
                 print("OPENING THE TRAIN SET")
@@ -295,25 +303,22 @@ class LSTM(object):
                 print("LOADING TO RAM")
                 reader.load_to_ram(BATCH_SIZE)
                 reader.data[:len(sentences)] = sentences
-                #print("THESE ARE THE SENTENCES THAT WERE INPUT: ",sentences)
+                print("THESE ARE THE SENTENCES THAT WERE INPUT: ",sentences)
                 batch_x, batch_y = reader.make_minibatch(reader.data)
-                print(batch_x, batch_y)
                 print("ABOUT TO SOLVE FOR P")
                 p = sess.run([pred], feed_dict={self.X: batch_x, self.Y: batch_y})
                 for i, s in enumerate(sentences):
                     english_pred = "prediction!"
                     if max(p[0][i]) == 0:
-                        english_pred = 'nothing'
+                        english_pred = 0
                     if max(p[0][i]) == 1:
-                        english_pred = 'offensive'
+                        english_pred = 1
                     if max(p[0][i]) == 2:
-                        english_pred = 'hate'
-                    print('Prediction is', p[0][i])
-                    print('Sentence: %s , yielded results : %d/%d, prediction: %s' %
-                          (s, p[0][i][0], p[0][i][1], english_pred))
-                    predlist.append(int(p[0][i][0]))
-            #print(predlist)
-            return predlist
+                        english_pred = 2
+                    else:
+                        print (max(p[0][i]))
+                        english_pred = random.randint(0,2)
+                    self.predlist.append(english_pred)
         
     def categorize_sentences(self, sentences):
         """ Op for categorizing multiple sentences (> BATCH_SIZE) """
