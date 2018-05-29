@@ -31,16 +31,16 @@ def main(tperc, seed, fpaths, weighting_type):
     #b = BayesEliminationModel()
     #v = VotingModel()
 
-    print("Initialized all models!")
-
-    # Train all models
-
-    print("Training Bayes...")
-    #b.train(train_set)
-    print("Training Voting...")
-    #v.train(train_set)
-
-    print("Trained all models!")
+    # print("Initialized all models!")
+    #
+    # # Train all models
+    #
+    # print("Training Bayes...")
+    # #b.train(train_set)
+    # print("Training Voting...")
+    # #v.train(train_set)
+    #
+    # print("Trained all models!")
 
     # Run models and store first set of results
 
