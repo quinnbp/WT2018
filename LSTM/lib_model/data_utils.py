@@ -1,8 +1,3 @@
-# coding=utf-8
-
-# Dataset needs to be shuffled before calling TextReader() instance;
-# Use shuffle_dataset() to make a new CSV file, default is /datasets/train_set.csv
-
 import codecs
 import random, csv
 import numpy as np
@@ -12,15 +7,21 @@ import sys
 import string
 import os
 
+reload(sys)
+sys.setdefaultencoding("utf8")
+
 printable = string.printable
 
-# PATH needs to be changed accordingly
-PATH = 'LSTM/'
-TRAIN_SET = PATH +'Datasets/labeled_data.csv'#'Datasets/All_Tweets_June2016_Dataset.csv'
-TEST_SET = PATH + 'Datasets/labeled_data.csv'#'Datasets/labeled_data.csv'
+# CHANGE PATH FOR PROJECT LAYOUT
+PATH = ''
+TRAIN_SET = PATH + ''
+TEST_SET = PATH + ''
 VALID_PERC = 0.05
+# CHANGE NUMBER OF SAMPLE SENTENCES ACCORDING
+TRAIN_NUM = 0
+TEST_NUM = 0
+VALID_NUM = 0
 
-# TODO: Add non-Ascii characters
 emb_alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:\'"/\\|_@#$%^&*~`+-=<>()[]{} '
 
 
@@ -38,16 +39,13 @@ def save_csv(out_file, data):
     with open(out_file, 'wb') as f:
         writer = csv.writer(f)
         writer.writerows(data)
-    #print('Data saved to file: %s' % out_file)
-
+    print('Data saved to file: %s' % out_file)
 
 TRAIN_SET = PATH + 'datasets/train_set.csv'
 TEST_SET = PATH + 'datasets/test_set.csv'
 VALID_SET = PATH + 'datasets/valid_set.csv'
 
 class TextReader(object):
-    """ Util for Reading the Stanford CSV Files """
-    # TODO: Add support for larger files and Queues
 
     def __init__(self, file, max_word_length):
         # TextReader() takes a CSV file as input that it will read
@@ -63,10 +61,10 @@ class TextReader(object):
         max_word_length = self.max_word_length
         sent = []
         SENT_LENGTH = 0
-        encoded_sentence = "".join(filter(lambda x: x in (printable), sentence))
+        encoded_sentence = filter(lambda x: x in (printable), sentence)
 
         print(encoded_sentence)
-        for word in word_tokenize(encoded_sentence):
+        for word in word_tokenize(encoded_sentence.decode('utf-8', 'ignore').encode('utf-8')):
 
             word_encoding = np.zeros(shape=(max_word_length, ALPHABET_SIZE))
 
@@ -109,27 +107,16 @@ class TextReader(object):
         # pad it with np.zeros of shape ('e',) to get ('b', 'SENTENCE_MAX_LENGTH', 'WORD_MAX_LENGTH', 'e')
         def numpy_fillna(data):
             # Get lengths of each row of data
-            enc = []
-            
-            #for ent in data:
-                #encoded = self.encode_one_hot(ent)
-                #enc.append(encoded)
             lens = np.array([len(i) for i in data])
 
-            #print('LENGTH!!!!!!!!!!!!!!')
-            #for e in lens:
-            #    print(e)
             # Mask of valid places in each row
             mask = np.arange(lens.max()) < lens[:, None]
 
             # Setup output array and put elements from data into masked positions
             out = np.zeros(shape=(mask.shape + (max_word_length, ALPHABET_SIZE)),
                            dtype='float32')
-            #for ent in data:
-                #encoded = self.encode_one_hot(ent)
-                #enc.append(encoded)
 
-            #out[mask] = np.concatenate(data)
+            out[mask] = np.concatenate(data)
             return out
 
         # Padding...
@@ -153,11 +140,11 @@ class TextReader(object):
     def iterate_minibatch(self, batch_size, dataset=TRAIN_SET):
         # Returns Next Batch and Catch Bound Errors
         if dataset == TRAIN_SET:
-            n_samples = 4800#1600000 * 0.95
+            n_samples = TRAIN_NUM
         elif dataset == VALID_SET:
-            n_samples = 4800#1600000 * 0.05
-        else: #elif dataset == TEST_SET:
-            n_samples = 4750
+            n_samples = VALID_NUM
+        elif dataset == TEST_SET:
+            n_samples = TEST_NUM
 
         n_batch = int(n_samples // batch_size)
 
